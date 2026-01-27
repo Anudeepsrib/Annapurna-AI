@@ -13,14 +13,33 @@ import { ArrowRight, Utensils, Flame, Leaf } from "lucide-react"
 export default function ProfilePage() {
     const [householdSize, setHouseholdSize] = useState("2")
     const [spiceLevel, setSpiceLevel] = useState("medium")
-    const [dietary, setDietary] = useState("vegetarian")
+    const [dietary] = useState("vegetarian")
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        // Logic to save preferences and generate plan would go here
-        console.log({ householdSize, spiceLevel, dietary })
-        // For MVP, navigate to plan directly or show success
-        alert("Preferences saved! Generating plan...")
+
+        try {
+            const response = await fetch("http://localhost:8000/api/generate-plan", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ householdSize, spiceLevel, dietary }),
+            })
+
+            if (response.ok) {
+                const result = await response.json()
+                console.log("Plan generated:", result)
+                // For MVP, navigate to plan directly
+                window.location.href = "/plan"
+            } else {
+                console.error("Failed to generate plan")
+                alert("Failed to generate plan. Please ensure backend is running.")
+            }
+        } catch (error) {
+            console.error("Error connecting to backend:", error)
+            alert("Error connecting to backend. Is it running?")
+        }
     }
 
     return (

@@ -112,11 +112,24 @@ No free-form hallucinated meal plans are allowed.
 
 ## Running Locally
 
+### Frontend (Next.js)
+
 ```bash
 git clone https://github.com/<your-username>/annapurna-ai.git
 cd annapurna-ai
 npm install
 npm run dev
+```
+
+### Backend (FastAPI)
+
+Open a new terminal:
+
+```bash
+cd backend
+python -m venv venv
+.\venv\Scripts\pip install -r requirements.txt
+.\venv\Scripts\uvicorn main:app --reload
 ```
 
 Create `.env.local`:

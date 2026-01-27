@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -10,45 +10,25 @@ import { Card, CardContent } from "@/components/ui/card"
 import { ArrowLeft, Share2, Printer } from "lucide-react"
 import Link from "next/link"
 
-// Mock Grocery Data
-const groceryCategories = [
-    {
-        name: "Produce",
-        items: [
-            { id: "p1", name: "Tomatoes", quantity: "1 kg", meals: ["Tomato Pappu", "Rasam"] },
-            { id: "p2", name: "Onions", quantity: "1 kg", meals: ["Upma", "Sambar", "Pesarattu"] },
-            { id: "p3", name: "Green Chillies", quantity: "200g", meals: ["All"] },
-            { id: "p4", name: "Curry Leaves", quantity: "2 bunches", meals: ["Tempering"] },
-            { id: "p5", name: "Bottle Gourd", quantity: "1 medium", meals: ["Stew"] },
-            { id: "p6", name: "Brinjal", quantity: "500g", meals: ["Vankaya Vepudu", "Curry"] },
-        ]
-    },
-    {
-        name: "Grains & Dals",
-        items: [
-            { id: "g1", name: "Toor Dal", quantity: "500g", meals: ["Pappu", "Sambar"] },
-            { id: "g2", name: "Moong Dal", quantity: "250g", meals: ["Pesarattu", "Pongal"] },
-            { id: "g3", name: "Sona Masoori Rice", quantity: "5 kg", meals: ["Staple"] },
-        ]
-    },
-    {
-        name: "Dairy",
-        items: [
-            { id: "d1", name: "Curd / Yogurt", quantity: "1 kg", meals: ["Majjiga Pulusu", "Rice side"] },
-            { id: "d2", name: "Ghee", quantity: "200g", meals: ["Pongal", "Seasoning"] },
-        ]
-    },
-    {
-        name: "Spices & Pantry",
-        items: [
-            { id: "s1", name: "Tamarind", quantity: "200g", meals: ["Pulihora", "Rasam"] },
-            { id: "s2", name: "Mustard Seeds", quantity: "100g", meals: ["Tempering"] },
-        ]
-    },
-]
+
 
 export default function GroceryPage() {
     const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({})
+    const [groceryCategories, setGroceryCategories] = useState<any[]>([])
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        fetch("http://localhost:8000/api/grocery-list")
+            .then(res => res.json())
+            .then(data => {
+                setGroceryCategories(data)
+                setLoading(false)
+            })
+            .catch(err => {
+                console.error("Failed to fetch grocery list:", err)
+                setLoading(false)
+            })
+    }, [])
 
     const toggleItem = (id: string) => {
         setCheckedItems(prev => ({ ...prev, [id]: !prev[id] }))
@@ -81,39 +61,43 @@ export default function GroceryPage() {
                     </div>
 
                     <div className="space-y-6">
-                        {groceryCategories.map((category) => (
-                            <Card key={category.name}>
-                                <CardContent className="pt-6">
-                                    <h3 className="font-serif text-xl font-bold mb-4 text-primary">{category.name}</h3>
-                                    <div className="space-y-3">
-                                        {category.items.map((item) => (
-                                            <div key={item.id} className="flex items-start space-x-3 group">
-                                                <Checkbox
-                                                    id={item.id}
-                                                    checked={checkedItems[item.id] || false}
-                                                    onCheckedChange={() => toggleItem(item.id)}
-                                                    className="mt-1"
-                                                />
-                                                <div className="flex-1">
-                                                    <Label
-                                                        htmlFor={item.id}
-                                                        className={`text-base font-medium cursor-pointer transition-colors ${checkedItems[item.id] ? "text-muted-foreground line-through decoration-muted-foreground/50" : ""}`}
-                                                    >
-                                                        {item.name}
-                                                    </Label>
-                                                    <div className={`text-sm text-muted-foreground flex justify-between ${checkedItems[item.id] ? "opacity-50" : ""}`}>
-                                                        <span>{item.quantity}</span>
-                                                        <span className="text-xs italic hidden group-hover:inline-block transition-opacity opacity-70">
-                                                            Used in: {item.meals.join(", ")}
-                                                        </span>
+                        {loading ? (
+                            <div className="text-center py-10">Loading grocery list...</div>
+                        ) : (
+                            groceryCategories.map((category) => (
+                                <Card key={category.name}>
+                                    <CardContent className="pt-6">
+                                        <h3 className="font-serif text-xl font-bold mb-4 text-primary">{category.name}</h3>
+                                        <div className="space-y-3">
+                                            {category.items.map((item: any) => (
+                                                <div key={item.id} className="flex items-start space-x-3 group">
+                                                    <Checkbox
+                                                        id={item.id}
+                                                        checked={checkedItems[item.id] || false}
+                                                        onCheckedChange={() => toggleItem(item.id)}
+                                                        className="mt-1"
+                                                    />
+                                                    <div className="flex-1">
+                                                        <Label
+                                                            htmlFor={item.id}
+                                                            className={`text-base font-medium cursor-pointer transition-colors ${checkedItems[item.id] ? "text-muted-foreground line-through decoration-muted-foreground/50" : ""}`}
+                                                        >
+                                                            {item.name}
+                                                        </Label>
+                                                        <div className={`text-sm text-muted-foreground flex justify-between ${checkedItems[item.id] ? "opacity-50" : ""}`}>
+                                                            <span>{item.quantity}</span>
+                                                            <span className="text-xs italic hidden group-hover:inline-block transition-opacity opacity-70">
+                                                                Used in: {item.meals.join(", ")}
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        ))}
+                                            ))}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))
+                        )}
                     </div>
                 </div>
             </main>

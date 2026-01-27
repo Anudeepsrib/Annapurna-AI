@@ -10,7 +10,7 @@ export default function AboutPage() {
             <main className="flex-1 py-10 bg-muted/20">
                 <div className="container mx-auto max-w-[800px] space-y-8">
                     <div className="text-center space-y-4">
-                        <h1 className="font-serif text-4xl font-bold">About Annapurna-AI</h1>
+                        <h1 className="font-serif text-4xl font-bold">About Annapurna</h1>
                         <p className="text-xl text-muted-foreground font-serif italic">
                             "Food is medicine, when eaten with mindfulness."
                         </p>
@@ -45,7 +45,7 @@ export default function AboutPage() {
                             <div className="space-y-2">
                                 <h3 className="font-serif text-lg font-bold">Safety Disclaimer</h3>
                                 <p className="text-sm text-muted-foreground leading-relaxed">
-                                    Annapurna-AI provides general wellness and educational information only.
+                                    Annapurna provides general wellness and educational information only.
                                     It does not provide medical advice, diagnosis, or treatment.
                                     Always consult a qualified healthcare professional regarding any medical condition
                                     or dietary changes. The meal plans are generated suggestions and should be reviewed

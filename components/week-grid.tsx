@@ -3,8 +3,8 @@
 import { useState } from "react"
 import { MealCard } from "@/components/meal-card"
 import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { ChevronLeft, ChevronRight, Sun, Sunrise, Moon } from "lucide-react"
 
 // Mock Data Type
 interface DayPlan {
@@ -22,50 +22,92 @@ interface WeekGridProps {
 }
 
 export function WeekGrid({ weekPlan }: WeekGridProps) {
-    const [currentDayIndex, setCurrentDayIndex] = useState(0)
+    const [selectedDayIndex, setSelectedDayIndex] = useState(0)
 
-    // For mobile view (Day by Day)
-    const currentDay = weekPlan[currentDayIndex]
+    const nextDay = () => setSelectedDayIndex((prev) => (prev + 1) % 7)
+    const prevDay = () => setSelectedDayIndex((prev) => (prev - 1 + 7) % 7)
 
-    const nextDay = () => setCurrentDayIndex((prev) => (prev + 1) % 7)
-    const prevDay = () => setCurrentDayIndex((prev) => (prev - 1 + 7) % 7)
+    const selectedDay = weekPlan[selectedDayIndex]
+
+    if (!selectedDay) return null
 
     return (
-        <div className="space-y-6">
-            {/* Mobile/Tablet View (Tabs/Carousel) - Visible only on smaller screens usually, but for MVP we can use Tabs for all */}
+        <div className="space-y-8">
+            {/* Weekly Navigation Rail */}
+            <div className="flex flex-col space-y-4">
+                <div className="flex items-center justify-between md:justify-center gap-4">
+                    <Button variant="ghost" size="icon" onClick={prevDay} className="md:hidden">
+                        <ChevronLeft className="h-4 w-4" />
+                    </Button>
 
-            <div className="flex items-center justify-between md:hidden pb-4">
-                <Button variant="ghost" size="icon" onClick={prevDay}>
-                    <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <div className="text-center">
-                    <h3 className="font-serif text-xl font-bold">{currentDay.day}</h3>
-                    <p className="text-xs text-muted-foreground">{currentDay.date}</p>
-                </div>
-                <Button variant="ghost" size="icon" onClick={nextDay}>
-                    <ChevronRight className="h-4 w-4" />
-                </Button>
-            </div>
-
-            <div className="md:hidden space-y-4">
-                <MealCard type="Breakfast" {...currentDay.meals.breakfast} />
-                <MealCard type="Lunch" {...currentDay.meals.lunch} />
-                <MealCard type="Dinner" {...currentDay.meals.dinner} />
-            </div>
-
-            {/* Desktop Grid View */}
-            <div className="hidden md:grid grid-cols-7 gap-4 min-w-[1000px] overflow-x-auto pb-4">
-                {weekPlan.map((day, i) => (
-                    <div key={i} className="space-y-4 min-w-[200px]">
-                        <div className="text-center pb-2 border-b border-muted">
-                            <h3 className="font-serif font-bold text-primary">{day.day}</h3>
-                            <p className="text-xs text-muted-foreground">{day.date}</p>
-                        </div>
-                        <MealCard type="Breakfast" {...day.meals.breakfast} />
-                        <MealCard type="Lunch" {...day.meals.lunch} />
-                        <MealCard type="Dinner" {...day.meals.dinner} />
+                    <div className="flex overflow-x-auto pb-2 gap-2 md:gap-4 no-scrollbar max-w-full snap-x">
+                        {weekPlan.map((day, i) => (
+                            <button
+                                key={i}
+                                onClick={() => setSelectedDayIndex(i)}
+                                className={cn(
+                                    "flex flex-col items-center justify-center min-w-[4.5rem] py-3 px-2 rounded-2xl transition-all duration-300 snap-center border-2",
+                                    selectedDayIndex === i
+                                        ? "bg-primary text-primary-foreground border-primary shadow-lg scale-105"
+                                        : "bg-muted/30 hover:bg-muted/50 text-muted-foreground border-transparent"
+                                )}
+                            >
+                                <span className="text-xs font-medium uppercase tracking-wider opacity-90">{day.day.substring(0, 3)}</span>
+                                <span className={cn(
+                                    "text-lg font-bold font-serif",
+                                    selectedDayIndex === i ? "text-white" : "text-foreground"
+                                )}>
+                                    {day.date.split(' ')[1]}
+                                </span>
+                            </button>
+                        ))}
                     </div>
-                ))}
+
+                    <Button variant="ghost" size="icon" onClick={nextDay} className="md:hidden">
+                        <ChevronRight className="h-4 w-4" />
+                    </Button>
+                </div>
+            </div>
+
+            {/* Daily Focused View */}
+            <div className="bg-card rounded-3xl p-6 md:p-10 shadow-lg border border-border animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="text-center mb-10">
+                    <h2 className="font-serif text-3xl md:text-4xl font-bold text-primary mb-2">
+                        {selectedDay.day}
+                    </h2>
+                    <p className="text-muted-foreground uppercase tracking-widest text-sm font-medium">
+                        {selectedDay.date} • Menu
+                    </p>
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-8">
+                    {/* Breakfast */}
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-3 text-accent pb-2 border-b border-muted">
+                            <Sunrise className="h-6 w-6" />
+                            <h3 className="font-serif text-xl font-bold">Breakfast</h3>
+                        </div>
+                        <MealCard type="Breakfast" {...selectedDay.meals.breakfast} />
+                    </div>
+
+                    {/* Lunch */}
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-3 text-primary pb-2 border-b border-muted">
+                            <Sun className="h-6 w-6" />
+                            <h3 className="font-serif text-xl font-bold">Lunch</h3>
+                        </div>
+                        <MealCard type="Lunch" {...selectedDay.meals.lunch} />
+                    </div>
+
+                    {/* Dinner */}
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-3 text-secondary pb-2 border-b border-muted">
+                            <Moon className="h-6 w-6" />
+                            <h3 className="font-serif text-xl font-bold">Dinner</h3>
+                        </div>
+                        <MealCard type="Dinner" {...selectedDay.meals.dinner} />
+                    </div>
+                </div>
             </div>
         </div>
     )

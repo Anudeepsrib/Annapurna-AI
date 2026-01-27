@@ -16,7 +16,7 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Annapurna-AI | Authentic Meal Planning",
+  title: "Annapurna | Authentic Meal Planning",
   description: "India-first, culture-aware AI meal planner and grocery assistant.",
 };
 
@@ -29,6 +29,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${outfit.variable} ${crimson.variable} antialiased`}
+        suppressHydrationWarning
       >
         {children}
       </body>
