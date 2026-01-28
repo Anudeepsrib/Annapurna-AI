@@ -4,29 +4,35 @@ import { Button } from "@/components/ui/button"
 
 export function Header() {
     return (
-        <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 shadow-sm">
+        <header className="sticky top-0 z-50 w-full border-b border-primary/10 bg-primary text-primary-foreground shadow-md">
             <div className="container mx-auto flex h-16 items-center justify-between px-4">
                 <div className="flex items-center gap-2">
-                    <Link href="/" className="flex items-center gap-3">
-                        <Image
-                            src="/annapurna_logo.png"
-                            alt="Annapurna Logo"
-                            width={40}
-                            height={40}
-                            priority
-                            unoptimized
-                            className="object-contain"
-                        />
-                        <span className="text-2xl font-serif font-bold text-primary tracking-tight">
+                    <Link href="/" className="flex items-center gap-3 group">
+                        <div className="relative">
+                            <Image
+                                src="/annapurna_logo.png"
+                                alt="Annapurna Logo"
+                                width={40}
+                                height={40}
+                                priority
+                                unoptimized
+                                className="object-contain"
+                            />
+                        </div>
+                        <span className="text-2xl font-serif font-bold tracking-tight text-primary-foreground">
                             Annapurna
                         </span>
                     </Link>
                 </div>
-                <nav className="flex items-center gap-4">
-                    <Link href="/about" className="text-sm font-medium hover:text-primary transition-colors">
+                <nav className="flex items-center gap-6">
+                    <Link href="/about" className="text-sm font-medium text-primary-foreground/90 hover:text-accent transition-colors">
                         About
                     </Link>
-                    <Button size="sm" variant="outline">Sign In</Button>
+                    <Link href="/login">
+                        <Button size="sm" className="bg-white text-primary hover:bg-white/90 border-transparent shadow-none">
+                            Sign In
+                        </Button>
+                    </Link>
                 </nav>
             </div>
         </header>

@@ -1,0 +1,36 @@
+[
+    {
+        "id": "IFCT-2017-A001",
+        "name": "Rice, polished, raw",
+        "scientific_name": "Oryza sativa",
+        "nutrients": {
+            "energy_kcal": 345,
+            "protein_g": 6.8,
+            "carbs_g": 78.2,
+            "fat_g": 0.5,
+            "fiber_g": 2.8,
+            "micronutrients": {
+                "iron_mg": 0.7,
+                "calcium_mg": 10
+            }
+        },
+        "source": "IFCT"
+    },
+    {
+        "id": "IFCT-2017-C002",
+        "name": "Moong dal (Green gram), split, without skin",
+        "scientific_name": "Vigna radiata",
+        "nutrients": {
+            "energy_kcal": 348,
+            "protein_g": 24.5,
+            "carbs_g": 59.9,
+            "fat_g": 1.2,
+            "fiber_g": 8.2,
+            "micronutrients": {
+                "iron_mg": 3.9,
+                "calcium_mg": 75
+            }
+        },
+        "source": "IFCT"
+    }
+]

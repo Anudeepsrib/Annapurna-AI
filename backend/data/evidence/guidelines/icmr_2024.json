@@ -1,0 +1,28 @@
+[
+    {
+        "id": "ICMR-2024-PROTEIN-01",
+        "topic": "protein",
+        "claim": "The Estimated Average Requirement (EAR) of protein for Indian adults is 0.66 g/kg body weight/day, and the Recommended Dietary Allowance (RDA) is 0.83 g/kg body weight/day.",
+        "evidence_type": "guideline",
+        "population": "Adult Indians (Sedentary/Moderate/Heavy Activity)",
+        "limitations": "Based on high-quality nitrogen balance studies on Indian subjects.",
+        "citation": {
+            "source": "ICMR-NIN Dietary Guidelines for Indians",
+            "year": 2024,
+            "identifier": "Chapter 4, Section 4.2"
+        }
+    },
+    {
+        "id": "ICMR-2024-FAT-01",
+        "topic": "fat",
+        "claim": "Visible fat intake should be restricted to 20-25g/day for sedentary adults to prevent chronic disease.",
+        "evidence_type": "guideline",
+        "population": "Adult Indians",
+        "limitations": "Assumes adequate invisible fat intake from cereals/pulses.",
+        "citation": {
+            "source": "ICMR-NIN Dietary Guidelines for Indians",
+            "year": 2024,
+            "identifier": "Chapter 5, Section 5.1"
+        }
+    }
+]

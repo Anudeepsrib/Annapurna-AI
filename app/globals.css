@@ -1,45 +1,49 @@
 @import "tailwindcss";
 
 :root {
-  /* Royal Indian Heritage Palette */
+  /* Annapurna Forest & Cream Palette */
 
-  /* Deep Espresso/Mahogany - Luxury grounding color */
-  --primary: #4A3427;
-  --primary-foreground: #F9F7F2;
+  /* Deep Forest Green - Trustworthy, Natural, Premium */
+  --primary: #1B4332;
+  --primary-foreground: #FDFBF7;
 
-  /* Antique Gold/Bronze - Premium accents */
-  --secondary: #B08D55;
-  --secondary-foreground: #2C1810;
+  /* Warm Cream - Home-cooked canvas */
+  --background: #FDFBF7;
+  --foreground: #1A1A1A;
+  /* Near Black */
 
-  /* Deep Moss/Forest - Freshness & Growth */
-  --accent: #3A5F45;
-  --accent-foreground: #F9F7F2;
+  /* Muted Gold / Saffron - Subtle Highlights */
+  --accent: #D4AF37;
+  --accent-foreground: #1B4332;
 
-  /* Warm Rice Paper / Cream - Soft background */
-  --background: #F9F7F2;
-  --foreground: #2C1810;
+  /* Secondary is same as Primary for Brand Consistency in some contexts, or lighter green */
+  --secondary: #2D6A4F;
+  /* Slightly lighter forest green for secondary elements */
+  --secondary-foreground: #FFFFFF;
 
-  /* Card Surfaces - Distinct from background */
+  /* Pure White for Cards on Cream Background */
   --card: #FFFFFF;
-  --card-foreground: #2C1810;
+  --card-foreground: #1A1A1A;
 
-  /* Muted tones for borders/subtext */
-  --muted: #E6DFD5;
-  --muted-foreground: #8C7B70;
+  --popover: #FFFFFF;
+  --popover-foreground: #1A1A1A;
 
-  /* UI Elements */
-  --border: #DMCBC4;
-  --input: #E6DFD5;
-  --ring: #B08D55;
+  --muted: #E8E8E8;
+  --muted-foreground: #555555;
 
-  --radius: 0.75rem;
-  /* Slightly more structural, less bubbly */
+  --border: #D1D5DB;
+  /* Neutral Grey */
+  --input: #F3F4F6;
+  --ring: #1B4332;
 
-  /* Premium Shadows - Warm & Soft */
-  --shadow-sm: 0 1px 2px 0 rgb(74 52 39 / 0.05);
-  --shadow: 0 4px 6px -1px rgb(74 52 39 / 0.08), 0 2px 4px -2px rgb(74 52 39 / 0.08);
-  --shadow-lg: 0 10px 15px -3px rgb(74 52 39 / 0.1), 0 4px 6px -4px rgb(74 52 39 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(74 52 39 / 0.1), 0 8px 10px -6px rgb(74 52 39 / 0.1);
+  --radius: 0.5rem;
+  /* Medium rounded corners */
+
+  /* Soft, Subtle Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.02);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.05), 0 10px 10px -5px rgb(0 0 0 / 0.02);
 }
 
 @theme inline {
@@ -55,11 +59,13 @@
 
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
 
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
 
-  --color-border: var(--muted);
+  --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
 
@@ -69,21 +75,42 @@
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
-
-  --shadow-xl: var(--shadow-xl);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
-  /* Subtle organic texture */
-  /* Subtle organic texture */
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-serif);
+  color: var(--primary);
+  /* Deep Green Headings */
 }
 
 /* Global Container Center Alignment */
 @utility container {
   margin-inline: auto;
   padding-inline: 1rem;
+}
+
+/* Hide scrollbar while keeping scroll functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Minimal Utilities */
+.text-balance {
+  text-wrap: balance;
 }

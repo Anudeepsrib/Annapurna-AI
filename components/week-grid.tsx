@@ -4,16 +4,31 @@ import { useState } from "react"
 import { MealCard } from "@/components/meal-card"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { ChevronLeft, ChevronRight, Sun, Sunrise, Moon } from "lucide-react"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 
 // Mock Data Type
 interface DayPlan {
     day: string
     date: string
     meals: {
-        breakfast: any
-        lunch: any
-        dinner: any
+        breakfast: {
+            title: string
+            description: string
+            ingredients: string[]
+            time?: string
+        }
+        lunch: {
+            title: string
+            description: string
+            ingredients: string[]
+            time?: string
+        }
+        dinner: {
+            title: string
+            description: string
+            ingredients: string[]
+            time?: string
+        }
     }
 }
 
@@ -32,80 +47,114 @@ export function WeekGrid({ weekPlan }: WeekGridProps) {
     if (!selectedDay) return null
 
     return (
-        <div className="space-y-8">
-            {/* Weekly Navigation Rail */}
-            <div className="flex flex-col space-y-4">
-                <div className="flex items-center justify-between md:justify-center gap-4">
-                    <Button variant="ghost" size="icon" onClick={prevDay} className="md:hidden">
-                        <ChevronLeft className="h-4 w-4" />
+        <div className="space-y-10">
+            {/* HORIZONTAL CALENDAR STRIP - Clean Design */}
+            <div className="relative">
+                {/* Desktop Navigation Arrows */}
+                <div className="hidden md:flex absolute -left-4 top-1/2 -translate-y-1/2 z-10">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={prevDay}
+                        className="h-10 w-10 rounded-full bg-white shadow border border-border hover:bg-muted"
+                    >
+                        <ChevronLeft className="h-5 w-5" />
                     </Button>
+                </div>
+                <div className="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 z-10">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={nextDay}
+                        className="h-10 w-10 rounded-full bg-white shadow border border-border hover:bg-muted"
+                    >
+                        <ChevronRight className="h-5 w-5" />
+                    </Button>
+                </div>
 
-                    <div className="flex overflow-x-auto pb-2 gap-2 md:gap-4 no-scrollbar max-w-full snap-x">
-                        {weekPlan.map((day, i) => (
+                {/* Calendar Track */}
+                <div className="flex overflow-x-auto scrollbar-hide py-4 px-2 -mx-2 snap-x snap-mandatory gap-2 md:justify-center">
+                    {weekPlan.map((day, index) => {
+                        const isSelected = selectedDayIndex === index
+                        return (
                             <button
-                                key={i}
-                                onClick={() => setSelectedDayIndex(i)}
+                                key={index}
+                                onClick={() => setSelectedDayIndex(index)}
                                 className={cn(
-                                    "flex flex-col items-center justify-center min-w-[4.5rem] py-3 px-2 rounded-2xl transition-all duration-300 snap-center border-2",
-                                    selectedDayIndex === i
-                                        ? "bg-primary text-primary-foreground border-primary shadow-lg scale-105"
-                                        : "bg-muted/30 hover:bg-muted/50 text-muted-foreground border-transparent"
+                                    "flex-shrink-0 snap-center flex flex-col items-center justify-center transition-all duration-300 rounded-xl relative overflow-hidden h-24 w-16 gap-1 border",
+                                    isSelected
+                                        ? "bg-primary text-primary-foreground border-primary shadow-md scale-105"
+                                        : "bg-white text-muted-foreground border-border hover:bg-muted/50"
                                 )}
                             >
-                                <span className="text-xs font-medium uppercase tracking-wider opacity-90">{day.day.substring(0, 3)}</span>
+                                <span className="text-xs font-semibold uppercase tracking-wider opacity-80">
+                                    {day.day.substring(0, 3)}
+                                </span>
                                 <span className={cn(
-                                    "text-lg font-bold font-serif",
-                                    selectedDayIndex === i ? "text-white" : "text-foreground"
+                                    "text-2xl font-bold font-serif",
+                                    isSelected ? "scale-110" : "scale-100"
                                 )}>
                                     {day.date.split(' ')[1]}
                                 </span>
+                                {isSelected && (
+                                    <div className="w-1.5 h-1.5 rounded-full bg-accent mt-1" />
+                                )}
                             </button>
-                        ))}
-                    </div>
-
-                    <Button variant="ghost" size="icon" onClick={nextDay} className="md:hidden">
-                        <ChevronRight className="h-4 w-4" />
-                    </Button>
+                        )
+                    })}
                 </div>
             </div>
 
-            {/* Daily Focused View */}
-            <div className="bg-card rounded-3xl p-6 md:p-10 shadow-lg border border-border animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="text-center mb-10">
-                    <h2 className="font-serif text-3xl md:text-4xl font-bold text-primary mb-2">
-                        {selectedDay.day}
+            {/* DAILY FOCUSED VIEW - Clean & Minimal */}
+            <div className="space-y-6">
+                <div className="text-center space-y-2">
+                    <h2 className="font-serif text-3xl md:text-4xl font-bold text-primary">
+                        {selectedDay.day}, {selectedDay.date}
                     </h2>
-                    <p className="text-muted-foreground uppercase tracking-widest text-sm font-medium">
-                        {selectedDay.date} • Menu
+                    <p className="text-muted-foreground text-sm uppercase tracking-wide font-medium">
+                        Today's Menu
                     </p>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-8">
-                    {/* Breakfast */}
-                    <div className="space-y-4">
-                        <div className="flex items-center gap-3 text-accent pb-2 border-b border-muted">
-                            <Sunrise className="h-6 w-6" />
-                            <h3 className="font-serif text-xl font-bold">Breakfast</h3>
+                <div className="relative overflow-hidden bg-white/50 rounded-2xl p-2 md:p-6 border border-border/40">
+                    <div className="flex overflow-x-auto scrollbar-hide snap-x snap-mandatory gap-4 md:gap-6 pb-6 pt-2 items-stretch px-2 md:justify-center">
+                        {/* Breakfast */}
+                        <div className="flex-shrink-0 w-[280px] md:w-[320px] snap-center">
+                            <MealCard
+                                type="Breakfast"
+                                title={selectedDay.meals.breakfast.title}
+                                description={selectedDay.meals.breakfast.description}
+                                time={selectedDay.meals.breakfast.time || "8:00 AM"}
+                                ingredients={selectedDay.meals.breakfast.ingredients}
+                            />
                         </div>
-                        <MealCard type="Breakfast" {...selectedDay.meals.breakfast} />
+
+                        {/* Lunch */}
+                        <div className="flex-shrink-0 w-[280px] md:w-[320px] snap-center">
+                            <MealCard
+                                type="Lunch"
+                                title={selectedDay.meals.lunch.title}
+                                description={selectedDay.meals.lunch.description}
+                                time={selectedDay.meals.lunch.time || "1:00 PM"}
+                                ingredients={selectedDay.meals.lunch.ingredients}
+                            />
+                        </div>
+
+                        {/* Dinner */}
+                        <div className="flex-shrink-0 w-[280px] md:w-[320px] snap-center">
+                            <MealCard
+                                type="Dinner"
+                                title={selectedDay.meals.dinner.title}
+                                description={selectedDay.meals.dinner.description}
+                                time={selectedDay.meals.dinner.time || "7:30 PM"}
+                                ingredients={selectedDay.meals.dinner.ingredients}
+                            />
+                        </div>
                     </div>
 
-                    {/* Lunch */}
-                    <div className="space-y-4">
-                        <div className="flex items-center gap-3 text-primary pb-2 border-b border-muted">
-                            <Sun className="h-6 w-6" />
-                            <h3 className="font-serif text-xl font-bold">Lunch</h3>
-                        </div>
-                        <MealCard type="Lunch" {...selectedDay.meals.lunch} />
-                    </div>
-
-                    {/* Dinner */}
-                    <div className="space-y-4">
-                        <div className="flex items-center gap-3 text-secondary pb-2 border-b border-muted">
-                            <Moon className="h-6 w-6" />
-                            <h3 className="font-serif text-xl font-bold">Dinner</h3>
-                        </div>
-                        <MealCard type="Dinner" {...selectedDay.meals.dinner} />
+                    {/* Simple Scroll Hint */}
+                    <div className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/30 animate-pulse">
+                        <ChevronRight className="h-8 w-8" />
                     </div>
                 </div>
             </div>

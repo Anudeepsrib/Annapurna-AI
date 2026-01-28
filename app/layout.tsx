@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Crimson_Text, Outfit } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "@/components/ui/sonner"
 
 const crimson = Crimson_Text({
   weight: ["400", "600", "700"],
@@ -32,6 +33,7 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         {children}
+        <Toaster />
       </body>
     </html>
   );

@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ArrowRight, Utensils, Flame, Leaf } from "lucide-react"
+import { toast } from "sonner"
 
 export default function ProfilePage() {
     const [householdSize, setHouseholdSize] = useState("2")
@@ -18,28 +19,23 @@ export default function ProfilePage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
 
-        try {
-            const response = await fetch("http://localhost:8000/api/generate-plan", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ householdSize, spiceLevel, dietary }),
-            })
+        const promise = fetch("/api/python/generate-plan", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ householdSize, spiceLevel, dietary }),
+        })
 
-            if (response.ok) {
-                const result = await response.json()
-                console.log("Plan generated:", result)
+        toast.promise(promise, {
+            loading: 'Generating your authentic meal plan...',
+            success: (data) => {
                 // For MVP, navigate to plan directly
                 window.location.href = "/plan"
-            } else {
-                console.error("Failed to generate plan")
-                alert("Failed to generate plan. Please ensure backend is running.")
-            }
-        } catch (error) {
-            console.error("Error connecting to backend:", error)
-            alert("Error connecting to backend. Is it running?")
-        }
+                return `Plan generated successfully!`
+            },
+            error: 'Failed to generate plan. Is the backend running?',
+        });
     }
 
     return (
