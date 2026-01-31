@@ -1,5 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button"
 
 export function Header() {
@@ -28,11 +29,16 @@ export function Header() {
                     <Link href="/about" className="text-sm font-medium text-primary-foreground/90 hover:text-accent transition-colors">
                         About
                     </Link>
-                    <Link href="/login">
-                        <Button size="sm" className="bg-white text-primary hover:bg-white/90 border-transparent shadow-none">
-                            Sign In
-                        </Button>
-                    </Link>
+                    <SignedOut>
+                        <SignInButton mode="modal">
+                            <Button size="sm" className="bg-white text-primary hover:bg-white/90 border-transparent shadow-none">
+                                Sign In
+                            </Button>
+                        </SignInButton>
+                    </SignedOut>
+                    <SignedIn>
+                        <UserButton afterSignOutUrl="/" />
+                    </SignedIn>
                 </nav>
             </div>
         </header>

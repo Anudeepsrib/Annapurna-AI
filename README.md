@@ -58,24 +58,25 @@ This is **home food**, not restaurant food.
 
 ### Backend
 
-* Next.js API routes (MVP)
-* Deterministic meal validation logic
-* SQLite / JSON seed data (no heavy DB initially)
+*   **FastAPI** (Python 3.11+)
+*   **LiteLLM** (Unified LLM Interface + Observability)
+*   **Structlog** (Structured JSON Logging)
+*   Top-tier Observability (Langfuse/Helicone integration)
 
 ### AI
 
-* **Gemini** (primary)
-* Architecture supports future routing to:
-
-  * OpenAI
-  * Anthropic
-  * xAI (Grok)
+*   **Gemini** (Primary via LiteLLM)
+*   Architecture supports instant switching to:
+    *   OpenAI
+    *   Anthropic
+    *   xAI (Grok)
+    *   Any custom model supported by LiteLLM
 
 ### Deployment
 
-* **Vercel** (frontend + API)
-* Free / low-tier friendly
-* No paid infra required for MVP
+*   **Frontend**: Vercel (Next.js)
+*   **Backend**: Render (FastAPI)
+*   **Guide**: See [PRODUCTION_GUIDE.md](./PRODUCTION_GUIDE.md) for step-by-step production deployment.
 
 ---
 

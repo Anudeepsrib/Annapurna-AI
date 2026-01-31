@@ -1,11 +1,14 @@
 import httpx
+import os
 from typing import Dict, Any, Optional
 
 class USDAClient:
     BASE_URL = "https://api.nal.usda.gov/fdc/v1"
     # In a real app, API_KEY would come from env vars.
     # We will assume a DEMO_KEY for this MVP or expect an env var.
-    API_KEY = "DEMO_KEY" 
+    # In a real app, API_KEY would come from env vars.
+    # We will assume a DEMO_KEY for this MVP or expect an env var.
+    API_KEY = os.getenv("USDA_API_KEY", "DEMO_KEY") 
 
     async def search_foods(self, query: str) -> Dict[str, Any]:
         """Search USDA database."""

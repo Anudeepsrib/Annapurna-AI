@@ -18,7 +18,7 @@ export default function GroceryPage() {
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        fetch("http://localhost:8000/api/grocery-list")
+        fetch("/api/python/grocery-list")
             .then(res => res.json())
             .then(data => {
                 setGroceryCategories(data)

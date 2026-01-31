@@ -43,15 +43,50 @@ class PlanRequest(BaseModel):
 # Mock Data Store for MVP (In-memory)
 generated_plan_store = []
 
+from app.auth.deps import get_current_user
+
 @router.post("/generate-plan")
-async def generate_plan(request: PlanRequest):
+async def generate_plan(request: PlanRequest, user_id: str = Depends(get_current_user)):
     """
     Generate a weekly meal plan (Mock implementation for MVP).
     """
+    global generated_plan_store
+    
     # In a real system, this would use LLM + Evidence to generate.
     # For MVP, we return a static curated Andhra plan.
+    # PROD UPDATE: Attempt LLM generation if key is present, else mock.
     
-    global generated_plan_store
+    from app.services.llm_service import llm_service
+    import json
+    import os
+    
+    # Attempt LLM generation if key is present
+    if os.getenv("OPENAI_API_KEY"):
+        try:
+            print("[INFO] Attempting LLM Generation...")
+            system_prompt = "You are an expert nutritionist specialized in Indian cuisine." \
+                            "Return ONLY a JSON object with the structure: " \
+                            "[{day: 'Monday', date: '...', meals: {breakfast: {title, description, ingredients:[], time}, lunch: {...}, dinner: {...}}}, ...]"
+            
+            user_prompt = f"Create a 7-day meal plan for {request.householdSize} people, {request.dietary}, spice level {request.spiceLevel}. Use Andhra style recipes."
+            
+            # Pass user_id for tracing
+            llm_response = await llm_service.generate_response(
+                system_prompt, 
+                user_prompt, 
+                json_mode=True, 
+                user_id=user_id
+            )
+            
+            if llm_response:
+                plan_data = json.loads(llm_response)
+                # Basic validation could go here
+                generated_plan_store = plan_data
+                return {"status": "success", "message": "Plan generated via AI"}
+        except Exception as e:
+            print(f"[ERROR] LLM Generation failed, falling back to mock: {e}")
+    
+    # FALLBACK to Mock
     
     mock_plan = [
         {

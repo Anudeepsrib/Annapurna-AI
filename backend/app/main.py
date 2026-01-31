@@ -1,8 +1,47 @@
 import time
+import structlog
+import os
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
 from app.api.routes import router as api_router
 
+# Load environment variables from .env file if present
+load_dotenv()
+
+# Configure structlog
+structlog.configure(
+    processors=[
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.processors.JSONRenderer()
+    ],
+    context_class=dict,
+    logger_factory=structlog.PrintLoggerFactory(),
+)
+
+logger = structlog.get_logger()
+
 app = FastAPI(title="Annapurna-AI Backend", version="0.1.0")
+
+# Configure CORS
+# In production, set FRONTEND_URL to your Vercel domain (e.g., https://annapurna-ai.vercel.app)
+origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+frontend_url = os.getenv("FRONTEND_URL")
+if frontend_url:
+    origins.append(frontend_url)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins, 
+    # allow_origins=["*"], # Uncomment if you have issues with specific domains in testing
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Safety & Audit Middleware
 @app.middleware("http")
@@ -10,13 +49,23 @@ async def safety_audit_logger(request: Request, call_next):
     start_time = time.time()
     
     # Log Request
-    # In production, use structured logging (e.g., structlog)
-    print(f"[AUDIT] {request.method} {request.url.path} | Query: {request.query_params}")
+    log = logger.bind(
+        method=request.method,
+        path=request.url.path,
+        query=str(request.query_params)
+    )
+    # Don't create excessive noise on health checks
+    if request.url.path != "/":
+        log.info("Request Started")
 
     response = await call_next(request)
     
     process_time = time.time() - start_time
-    print(f"[AUDIT] Completed in {process_time:.4f}s | Status: {response.status_code}")
+    
+    if request.url.path != "/":
+        log.info("Request Completed", 
+                duration=f"{process_time:.4f}s", 
+                status=response.status_code)
     
     return response
 
@@ -25,8 +74,10 @@ app.include_router(api_router, prefix="/api/v1")
 
 @app.get("/")
 def health_check():
-    return {"status": "ok", "system": "Annapurna-AI Evidence Backend"}
+    mode = "AI" if os.getenv("OPENAI_API_KEY") else "Mock"
+    return {"status": "ok", "system": "Annapurna-AI Evidence Backend", "mode": mode}
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
+    is_dev = os.getenv("ENV") != "production"
+    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=is_dev)

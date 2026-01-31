@@ -11,7 +11,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowRight, Utensils, Flame, Leaf } from "lucide-react"
 import { toast } from "sonner"
 
+import { useAuth } from "@clerk/nextjs"
+
 export default function ProfilePage() {
+    const { getToken } = useAuth()
     const [householdSize, setHouseholdSize] = useState("2")
     const [spiceLevel, setSpiceLevel] = useState("medium")
     const [dietary] = useState("vegetarian")
@@ -19,10 +22,13 @@ export default function ProfilePage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
 
+        const token = await getToken()
+
         const promise = fetch("/api/python/generate-plan", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
             },
             body: JSON.stringify({ householdSize, spiceLevel, dietary }),
         })

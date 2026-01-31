@@ -21,20 +21,24 @@ export const metadata: Metadata = {
   description: "India-first, culture-aware AI meal planner and grocery assistant.",
 };
 
+import { ClerkProvider } from "@clerk/nextjs";
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${outfit.variable} ${crimson.variable} antialiased`}
-        suppressHydrationWarning
-      >
-        {children}
-        <Toaster />
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body
+          className={`${outfit.variable} ${crimson.variable} antialiased`}
+          suppressHydrationWarning
+        >
+          {children}
+          <Toaster />
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
