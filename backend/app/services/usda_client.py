@@ -1,6 +1,6 @@
 import httpx
 import os
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 
 class USDAClient:
     BASE_URL = "https://api.nal.usda.gov/fdc/v1"

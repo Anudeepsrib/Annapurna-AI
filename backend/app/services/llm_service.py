@@ -2,7 +2,7 @@ import os
 import litellm
 import structlog
 from dotenv import load_dotenv
-from typing import Dict, Any, Optional
+from typing import Optional
 
 load_dotenv()
 

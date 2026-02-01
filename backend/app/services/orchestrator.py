@@ -1,4 +1,3 @@
-from typing import List, Optional
 from app.services.evidence_service import evidence_service
 from app.services.pubmed_client import pubmed_client
 from app.models.schemas import EvidenceClaim, EvidenceResponse

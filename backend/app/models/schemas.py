@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Literal, Dict, Optional, List
+from typing import Literal, Dict, List
 
 # --- C. Curated Evidence Models ---
 
@@ -32,6 +32,13 @@ class FoodItem(BaseModel):
     name: str
     source: Literal["IFCT", "USDA"]
     nutrients: NutrientProfile
+
+# --- Plan Models ---
+
+class PlanRequest(BaseModel):
+    householdSize: str
+    spiceLevel: str
+    dietary: str
 
 # --- API Response Models ---
 

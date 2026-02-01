@@ -118,4 +118,14 @@ Check Render Logs for structured JSON output.
 ### 2. LLM Tracing
 Add `LITELLM_CALLBACK="langfuse"` and Langfuse keys to Render to track AI usage.
 
+## Security Controls
+
+### Rate Limiting
+The API is protected by **SlowAPI**. The default limit for Plan Generation is **5 requests per minute per IP**.
+- **Configuration**: `backend/app/api/routes.py`
+- **Exception Handling**: `backend/app/main.py` handles `RateLimitExceeded` 429 errors.
+
+### CI/CD
+A GitHub Action is included to verify builds before deployment. ensure your repository has Actions enabled.
+
 

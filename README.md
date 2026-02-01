@@ -59,7 +59,9 @@ This is **home food**, not restaurant food.
 ### Backend
 
 *   **FastAPI** (Python 3.11+)
+*   **SQLModel** (Persistence & ORM)
 *   **LiteLLM** (Unified LLM Interface + Observability)
+*   **SlowAPI** (Rate Limiting)
 *   **Structlog** (Structured JSON Logging)
 *   Top-tier Observability (Langfuse/Helicone integration)
 
@@ -77,6 +79,15 @@ This is **home food**, not restaurant food.
 *   **Frontend**: Vercel (Next.js)
 *   **Backend**: Render (FastAPI)
 *   **Guide**: See [PRODUCTION_GUIDE.md](./PRODUCTION_GUIDE.md) for step-by-step production deployment.
+
+## Enterprise Architecture
+
+The codebase has been upgraded to an Enterprise-Ready Standard:
+
+*   **Persistence**: Uses **SQLModel** (SQLite for Dev, PostgreSQL for Prod) to store user plans.
+*   **Security**: Endpoints are protected by **Rate Limiting** (5 requests/minute) using **SlowAPI**.
+*   **CI/CD**: GitHub Actions workflow (`.github/workflows/ci.yml`) runs **Ruff** linting and **Pytest** suites on every push.
+*   **Clean Architecture**: Separation of concerns (`Routes` <-> `Services` <-> `Data Layer`).
 
 ---
 

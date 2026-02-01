@@ -1,10 +1,15 @@
 import time
 import structlog
 import os
+import contextlib
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 from app.api.routes import router as api_router
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from app.core.limiter import limiter
+from app.core.database import create_db_and_tables
 
 # Load environment variables from .env file if present
 load_dotenv()
@@ -21,7 +26,19 @@ structlog.configure(
 
 logger = structlog.get_logger()
 
-app = FastAPI(title="Annapurna-AI Backend", version="0.1.0")
+
+
+@contextlib.asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    create_db_and_tables()
+    yield
+    # Shutdown
+    
+app = FastAPI(title="Annapurna-AI Backend", version="0.1.0", lifespan=lifespan)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 
 # Configure CORS
 # In production, set FRONTEND_URL to your Vercel domain (e.g., https://annapurna-ai.vercel.app)
