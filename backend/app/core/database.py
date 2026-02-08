@@ -1,25 +1,42 @@
-from sqlmodel import SQLModel, create_engine, Session
-from typing import Generator
-import os
+from sqlmodel import SQLModel
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import sessionmaker
+from typing import AsyncGenerator
+from app.core.config import settings
 
-# Use SQLite for MVP/Free-Tier (File based)
-# In production, this env var would be a Postgres URL
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./annapurna.db")
+# Construct Async Database URL based on settings
+# If DATABASE_URL is set (Production), use it.
+# Otherwise, fall back to async SQLite for local dev/testing.
+if settings.DATABASE_URL:
+    DATABASE_URL = str(settings.DATABASE_URL)
+else:
+    DATABASE_URL = "sqlite+aiosqlite:///./annapurna.db"
 
-# check_same_thread=False is needed only for SQLite
-connect_args = {"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
+# Create Async Engine
+# echo=True logs SQL queries (good for debugging, disable in prod if noisy)
+engine = create_async_engine(
+    DATABASE_URL, 
+    echo=False, 
+    future=True,
+    # Connection Pool Settings (Relevant for Postgres)
+    pool_size=20,     # Max persistent connections
+    max_overflow=10,  # Max additional connections during spikes
+    pool_pre_ping=True # Check connection health before usage
+)
 
-engine = create_engine(DATABASE_URL, connect_args=connect_args)
-
-def create_db_and_tables():
+async def create_db_and_tables():
     """
     Create tables if they don't exist.
     """
-    SQLModel.metadata.create_all(engine)
+    async with engine.begin() as conn:
+        await conn.run_sync(SQLModel.metadata.create_all)
 
-def get_session() -> Generator[Session, None, None]:
+async def get_session() -> AsyncGenerator[AsyncSession, None]:
     """
-    Dependency to provide a DB session per request.
+    Dependency to provide an Async DB session per request.
     """
-    with Session(engine) as session:
+    async_session = sessionmaker(
+        engine, class_=AsyncSession, expire_on_commit=False
+    )
+    async with async_session() as session:
         yield session

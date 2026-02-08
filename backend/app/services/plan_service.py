@@ -1,4 +1,5 @@
-from sqlmodel import Session, select
+from sqlmodel import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.db import MealPlan
 from app.services.llm_service import llm_service
 from app.models.schemas import PlanRequest
@@ -9,7 +10,7 @@ import structlog
 logger = structlog.get_logger()
 
 class PlanService:
-    def __init__(self, session: Session):
+    def __init__(self, session: AsyncSession):
         self.session = session
 
     async def generate_plan(self, request: PlanRequest, user_id: str):
@@ -31,7 +32,7 @@ class PlanService:
             plan_data = self._get_mock_plan()
 
         # 3. Save to Database
-        self._save_plan(user_id, plan_data)
+        await self._save_plan(user_id, plan_data)
         
         return plan_data
 
@@ -40,19 +41,20 @@ class PlanService:
         Retrieves the most recent plan for the user.
         """
         statement = select(MealPlan).where(MealPlan.user_id == user_id).order_by(MealPlan.created_at.desc())
-        result = self.session.exec(statement).first()
+        result = await self.session.exec(statement)
+        plan = result.first()
         
-        if result:
-            return result.plan_data
+        if plan:
+            return plan.plan_data
         return None
 
-    def _save_plan(self, user_id: str, plan_data: list):
+    async def _save_plan(self, user_id: str, plan_data: list):
         # json.dumps ensures we store it as a string
         json_content = json.dumps(plan_data)
         db_plan = MealPlan(user_id=user_id, plan_json=json_content)
         self.session.add(db_plan)
-        self.session.commit()
-        self.session.refresh(db_plan)
+        await self.session.commit()
+        await self.session.refresh(db_plan)
         logger.info("Plan saved to DB", id=db_plan.id)
 
     async def _generate_with_llm(self, request: PlanRequest, user_id: str):

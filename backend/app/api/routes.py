@@ -1,20 +1,17 @@
 from fastapi import APIRouter, Depends, Request
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.limiter import limiter
 from app.services.evidence_service import evidence_service
 from app.services.orchestrator import orchestrator
 from app.services.usda_client import usda_client
 from app.models.schemas import EvidenceResponse, PlanRequest
-from pydantic import BaseModel
 from app.core.database import get_session
-from sqlmodel import Session
 from app.services.plan_service import PlanService
 from app.auth.deps import get_current_user
 
 router = APIRouter()
 
 # --- Plan Generation Routes ---
-
-
 
 @router.get("/evidence/{topic}", response_model=EvidenceResponse)
 async def get_evidence(topic: str):
@@ -29,6 +26,7 @@ async def search_ifct(query: str):
     """
     Search local IFCT database.
     """
+    # evidence_service is still sync (check if needs update, assuming file based read is fast enough or TODO)
     results = evidence_service.get_ifct_food(query)
     return {"results": results}
 
@@ -40,15 +38,13 @@ async def search_usda(query: str):
     results = await usda_client.search_foods(query)
     return results
 
-
-
 @router.post("/generate-plan")
 @limiter.limit("5/minute")
 async def generate_plan(
     plan_request: PlanRequest, 
     request: Request,
     user_id: str = Depends(get_current_user),
-    session: Session = Depends(get_session)
+    session: AsyncSession = Depends(get_session)
 ):
     """
     Generate a weekly meal plan using LLM + DB Persistence.
@@ -61,7 +57,7 @@ async def generate_plan(
 @router.get("/plan")
 async def get_plan(
     user_id: str = Depends(get_current_user),
-    session: Session = Depends(get_session)
+    session: AsyncSession = Depends(get_session)
 ):
     """
     Retrieve the current meal plan for the user.
@@ -70,8 +66,6 @@ async def get_plan(
     plan = await service.get_latest_plan(user_id)
     
     if not plan:
-        # If no plan exists, we could return 404 or empty list.
-        # For UX, let's return empty list which frontend might handle or prompt generation.
         return []
           
     return plan
@@ -79,7 +73,7 @@ async def get_plan(
 @router.get("/grocery-list")
 async def get_grocery_list(
     user_id: str = Depends(get_current_user),
-    session: Session = Depends(get_session)
+    session: AsyncSession = Depends(get_session)
 ):
     """
     Generate grocery list from the latest plan.
