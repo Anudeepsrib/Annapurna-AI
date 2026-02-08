@@ -1,5 +1,36 @@
+import axios from "axios";
 
-// Types matching Backend Pydantic Models
+// --- Types ---
+
+export interface Ingredient {
+    id: string;
+    name: string;
+    quantity: string;
+    meals: string[];
+}
+
+export interface GroceryCategory {
+    name: string;
+    items: Ingredient[];
+}
+
+export interface Meal {
+    title: string;
+    description: string;
+    ingredients: string[];
+    time: string;
+}
+
+export interface DayPlan {
+    day: string;
+    date: string;
+    meals: {
+        breakfast: Meal;
+        lunch: Meal;
+        dinner: Meal;
+    };
+}
+
 export interface EvidenceCitation {
     source: string;
     year: number;
@@ -22,47 +53,33 @@ export interface EvidenceResponse {
     disclaimer: string;
 }
 
-export interface FoodItem {
-    id: string;
-    name: string;
-    source: "IFCT" | "USDA";
-    nutrients: any; // Simplified for MVP
-}
+// --- API Client ---
 
-const BASE_URL = '/api/python';
+const api = axios.create({
+    baseURL: "/api/python", // Proxied to Backend
+    headers: {
+        "Content-Type": "application/json",
+    },
+});
 
 export const ApiClient = {
-    /**
-     * Fetch evidence for a specific topic (e.g., 'protein', 'diabetes')
-     */
-    getEvidence: async (topic: string): Promise<EvidenceResponse | null> => {
-        try {
-            const res = await fetch(`${BASE_URL}/evidence/${topic}`);
-            if (!res.ok) throw new Error('Failed to fetch evidence');
-            return await res.json();
-        } catch (error) {
-            console.error('API Error:', error);
-            return null;
-        }
+    getPlan: async (): Promise<DayPlan[]> => {
+        const { data } = await api.get<DayPlan[]>("/plan");
+        return data;
     },
 
-    /**
-     * Search for food nutrients (IFCT prioritized)
-     */
-    searchFood: async (query: string): Promise<FoodItem[]> => {
-        try {
-            // Try IFCT first (local)
-            const res = await fetch(`${BASE_URL}/mcp/ifct/search?query=${query}`);
-            if (res.ok) {
-                const data = await res.json();
-                if (data.results && data.results.length > 0) return data.results;
-            }
+    generatePlan: async (prefs: { householdSize: string; spiceLevel: string; dietary: string }) => {
+        const { data } = await api.post("/generate-plan", prefs);
+        return data;
+    },
 
-            // Fallback to USDA (if implemented in UI flow, for now just IFCT)
-            return [];
-        } catch (error) {
-            console.error('Food Search Error:', error);
-            return [];
-        }
+    getGroceryList: async (): Promise<GroceryCategory[]> => {
+        const { data } = await api.get<GroceryCategory[]>("/grocery-list");
+        return data;
+    },
+
+    getEvidence: async (topic: string): Promise<EvidenceResponse> => {
+        const { data } = await api.get<EvidenceResponse>(`/evidence/${topic}`);
+        return data;
     }
 };

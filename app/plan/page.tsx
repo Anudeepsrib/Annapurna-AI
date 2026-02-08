@@ -5,28 +5,13 @@ import { Footer } from "@/components/footer"
 import { WeekGrid } from "@/components/week-grid"
 import { Button } from "@/components/ui/button"
 import { Download, ShoppingCart } from "lucide-react"
-import { useEffect, useState } from "react"
 import { PlanSkeleton } from "@/components/skeletons"
 import { EvidencePanel } from "@/components/evidence-panel"
-
-const defaultWeekPlan = [] // Empty initially, fetched from backend
+import { useGetPlan } from "@/hooks/use-plan"
+import { ErrorState } from "@/components/error-state"
 
 export default function PlanPage() {
-    const [weekPlan, setWeekPlan] = useState<any[]>([])
-    const [loading, setLoading] = useState(true)
-
-    useEffect(() => {
-        fetch("/api/python/plan")
-            .then(res => res.json())
-            .then(data => {
-                setWeekPlan(data)
-                setLoading(false)
-            })
-            .catch(err => {
-                console.error("Failed to fetch plan:", err)
-                setLoading(false)
-            })
-    }, [])
+    const { data: weekPlan, isLoading, isError, refetch } = useGetPlan();
 
     return (
         <div className="flex min-h-screen flex-col">
@@ -68,10 +53,12 @@ export default function PlanPage() {
                         </div>
                     </div>
 
-                    {loading ? (
+                    {isLoading ? (
                         <PlanSkeleton />
+                    ) : isError ? (
+                        <ErrorState onRetry={() => refetch()} />
                     ) : (
-                        <WeekGrid weekPlan={weekPlan} />
+                        <WeekGrid weekPlan={weekPlan || []} />
                     )}
 
                     <div className="mt-12">

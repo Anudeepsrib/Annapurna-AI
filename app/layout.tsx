@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   description: "India-first, culture-aware AI meal planner and grocery assistant.",
 };
 
-import { ClerkProvider } from "@clerk/nextjs";
+import { Providers } from "./providers";
 
 export default function RootLayout({
   children,
@@ -29,16 +29,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en">
-        <body
-          className={`${outfit.variable} ${crimson.variable} antialiased`}
-          suppressHydrationWarning
-        >
+    <html lang="en">
+      <body
+        className={`${outfit.variable} ${crimson.variable} antialiased`}
+        suppressHydrationWarning
+      >
+        <Providers>
           {children}
-          <Toaster />
-        </body>
-      </html>
-    </ClerkProvider>
+        </Providers>
+      </body>
+    </html>
   );
 }
