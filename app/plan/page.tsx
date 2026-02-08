@@ -9,9 +9,12 @@ import { PlanSkeleton } from "@/components/skeletons"
 import { EvidencePanel } from "@/components/evidence-panel"
 import { useGetPlan } from "@/hooks/use-plan"
 import { ErrorState } from "@/components/error-state"
+import { GroceryListDialog } from "@/components/grocery-list-dialog"
+import { useState } from "react"
 
 export default function PlanPage() {
     const { data: weekPlan, isLoading, isError, refetch } = useGetPlan();
+    const [showGroceryList, setShowGroceryList] = useState(false);
 
     return (
         <div className="flex min-h-screen flex-col">
@@ -31,7 +34,6 @@ export default function PlanPage() {
                                     </div>
                                     <span className="text-muted-foreground/50">•</span>
                                     <span className="text-sm md:text-base font-medium">Vegetarian</span>
-                                    <span className="text-muted-foreground/50">•</span>
                                     <span className="text-sm md:text-base font-medium">Andhra Style</span>
                                 </div>
                             </div>
@@ -44,6 +46,7 @@ export default function PlanPage() {
                                     <span className="font-semibold">Export</span>
                                 </Button>
                                 <Button
+                                    onClick={() => setShowGroceryList(true)}
                                     className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90 shadow-md font-sans"
                                 >
                                     <ShoppingCart className="h-4 w-4" />
@@ -67,6 +70,7 @@ export default function PlanPage() {
                 </div>
             </main>
             <Footer />
+            <GroceryListDialog open={showGroceryList} onOpenChange={setShowGroceryList} />
         </div>
     )
 }
