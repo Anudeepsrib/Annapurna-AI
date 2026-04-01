@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="public/annapurna_logo.png" alt="Annapurna-AI Logo" width="120" style="border-radius: 20%; margin-bottom: 20px;" />
+  <img src="public/annapurna_logo.png" alt="Annapurna-AI Logo" width="150" style="border-radius: 20%; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
   
   <h1 style="margin-top: 0;">Annapurna-AI 🍚</h1>
   
@@ -8,11 +8,27 @@
   <p>A fully local, privacy-first AI meal planner meticulously crafted for authentic South Indian, Andhra Telugu vegetarian cooking.</p>
 
   <p>
+    <a href="https://github.com/Anudeepsrib/Annapurna-AI">
+      <img src="https://img.shields.io/github/stars/Anudeepsrib/Annapurna-AI?style=for-the-badge&logo=github" alt="GitHub stars" />
+    </a>
+    <a href="https://github.com/Anudeepsrib/Annapurna-AI">
+      <img src="https://img.shields.io/github/forks/Anudeepsrib/Annapurna-AI?style=for-the-badge&logo=github" alt="GitHub forks" />
+    </a>
+    <a href="https://github.com/Anudeepsrib/Annapurna-AI/blob/main/LICENSE">
+      <img src="https://img.shields.io/github/license/Anudeepsrib/Annapurna-AI?style=for-the-badge" alt="License" />
+    </a>
+  </p>
+
+  <p>
     <a href="#-core-features">Features</a> •
     <a href="#-quick-start">Quick Start</a> •
     <a href="#%EF%B8%8F-tech-stack">Data & Tech Stack</a> •
     <a href="#-models--llms">Models</a>
   </p>
+  
+  <a href="https://github.com/Anudeepsrib/Annapurna-AI">
+    <img src="https://github-readme-stats.vercel.app/api/pin/?username=Anudeepsrib&repo=Annapurna-AI&theme=radical&show_owner=true" alt="Readme Card" />
+  </a>
 </div>
 
 ---
