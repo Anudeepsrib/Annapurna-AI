@@ -13,7 +13,7 @@ export function PlanSkeleton() {
             </div>
 
             {/* Daily View Skeleton */}
-            <div className="bg-card rounded-3xl p-6 md:p-10 shadow-lg border border-border">
+            <div className="bg-card rounded-2xl p-6 md:p-10 shadow-md shadow-primary/5 border border-primary/10">
                 <div className="text-center mb-10 space-y-3 flex flex-col items-center">
                     <Skeleton className="h-10 w-48" />
                     <Skeleton className="h-4 w-32" />

@@ -21,29 +21,32 @@ export default function PlanPage() {
             <Header />
             <main className="flex-1 py-10 bg-muted/20">
                 <div className="container mx-auto px-4 max-w-[1400px]">
-                    <div className="bg-white rounded-xl p-8 mb-8 border shadow-sm">
-                        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                            <div className="space-y-2">
-                                <h1 className="font-serif text-3xl md:text-4xl font-bold text-primary">
-                                    Your Weekly Plan
+                    <div className="bg-card rounded-2xl p-8 mb-8 border border-primary/10 shadow-sm relative overflow-hidden">
+                        {/* Decorative watermark/element (optional organic touch) */}
+                        <div className="absolute top-0 right-0 -mt-16 -mr-16 w-64 h-64 bg-accent/5 rounded-full blur-3xl pointer-events-none" />
+                        
+                        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
+                            <div className="space-y-3">
+                                <h1 className="font-serif text-4xl md:text-5xl font-bold text-primary tracking-tight">
+                                    Namaskaram
                                 </h1>
                                 <div className="flex items-center gap-3 text-muted-foreground">
                                     <div className="flex items-center gap-2">
                                         <div className="w-2 h-2 rounded-full bg-accent" />
-                                        <span className="text-sm md:text-base font-medium text-foreground">Feb 12 - Feb 18</span>
+                                        <span className="text-sm md:text-base font-medium text-foreground">Week of Feb 12</span>
                                     </div>
                                     <span className="text-muted-foreground/50">•</span>
-                                    <span className="text-sm md:text-base font-medium">Vegetarian</span>
-                                    <span className="text-sm md:text-base font-medium">Andhra Style</span>
+                                    <span className="text-xs md:text-sm font-medium px-2.5 py-1 bg-primary/5 text-primary border border-primary/10 rounded-full">Vegetarian</span>
+                                    <span className="text-xs md:text-sm font-medium px-2.5 py-1 bg-accent/10 text-accent-foreground border border-accent/20 rounded-full">Andhra Recipe</span>
                                 </div>
                             </div>
                             <div className="flex gap-3 flex-wrap">
                                 <Button
                                     variant="outline"
-                                    className="gap-2 bg-white hover:bg-muted font-sans"
+                                    className="gap-2 font-medium"
                                 >
                                     <Download className="h-4 w-4" />
-                                    <span className="font-semibold">Export</span>
+                                    <span>Export</span>
                                 </Button>
                                 <Button
                                     onClick={() => setShowGroceryList(true)}

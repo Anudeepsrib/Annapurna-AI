@@ -4,25 +4,36 @@ from sqlalchemy.orm import sessionmaker
 from typing import AsyncGenerator
 from app.core.config import settings
 
+import os
+from sqlalchemy.pool import NullPool
+
 # Construct Async Database URL based on settings
 # If DATABASE_URL is set (Production), use it.
 # Otherwise, fall back to async SQLite for local dev/testing.
 if settings.DATABASE_URL:
     DATABASE_URL = str(settings.DATABASE_URL)
 else:
-    DATABASE_URL = "sqlite+aiosqlite:///./annapurna.db"
+    # Use absolute path to avoid unpredicted file creation inside arbitrary terminals
+    db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "annapurna.db"))
+    DATABASE_URL = f"sqlite+aiosqlite:///{db_path}"
+
+# SQLite doesn't play well with Postgres connection pools
+engine_kwargs = {
+    "echo": False,
+    "future": True,
+}
+
+if "sqlite" in DATABASE_URL:
+    engine_kwargs["poolclass"] = NullPool
+else:
+    engine_kwargs.update({
+        "pool_size": 20,
+        "max_overflow": 10,
+        "pool_pre_ping": True
+    })
 
 # Create Async Engine
-# echo=True logs SQL queries (good for debugging, disable in prod if noisy)
-engine = create_async_engine(
-    DATABASE_URL, 
-    echo=False, 
-    future=True,
-    # Connection Pool Settings (Relevant for Postgres)
-    pool_size=20,     # Max persistent connections
-    max_overflow=10,  # Max additional connections during spikes
-    pool_pre_ping=True # Check connection health before usage
-)
+engine = create_async_engine(DATABASE_URL, **engine_kwargs)
 
 async def create_db_and_tables():
     """

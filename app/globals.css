@@ -1,49 +1,52 @@
 @import "tailwindcss";
 
 :root {
-  /* Annapurna Forest & Cream Palette */
+  /* Annapurna Brand Palette */
 
-  /* Deep Forest Green - Trustworthy, Natural, Premium */
+  /* Deep Forest Green - Banana Leaf, Trustworthy, Natural */
   --primary: #1B4332;
   --primary-foreground: #FDFBF7;
 
-  /* Warm Cream - Home-cooked canvas */
+  /* Warm Cream - Traditional Rice/Courtyard Canvas */
   --background: #FDFBF7;
-  --foreground: #1A1A1A;
-  /* Near Black */
+  --foreground: #1C1917;
 
-  /* Muted Gold / Saffron - Subtle Highlights */
+  /* Saffron / Muted Gold - Turmeric, Auspiciousness */
   --accent: #D4AF37;
   --accent-foreground: #1B4332;
 
-  /* Secondary is same as Primary for Brand Consistency in some contexts, or lighter green */
+  /* Leaf Green - Secondary Natural Accents */
   --secondary: #2D6A4F;
-  /* Slightly lighter forest green for secondary elements */
-  --secondary-foreground: #FFFFFF;
+  --secondary-foreground: #FDFBF7;
 
-  /* Pure White for Cards on Cream Background */
+  /* Pure White / Soft Pearl for Cards elevated over Cream */
   --card: #FFFFFF;
-  --card-foreground: #1A1A1A;
+  --card-foreground: #1C1917;
 
   --popover: #FFFFFF;
-  --popover-foreground: #1A1A1A;
+  --popover-foreground: #1C1917;
 
-  --muted: #E8E8E8;
-  --muted-foreground: #555555;
+  /* Warmer, softer grey-cream for muted layers */
+  --muted: #F5F3EC;
+  --muted-foreground: #78716C;
 
-  --border: #D1D5DB;
-  /* Neutral Grey */
-  --input: #F3F4F6;
+  /* Warm beige border (stone) instead of cool generic grey */
+  --border: #E5E0D8;
+  --input: #FFFFFF;
   --ring: #1B4332;
 
-  --radius: 0.5rem;
-  /* Medium rounded corners */
+  /* Destructive - Earthy Kumkum Red */
+  --destructive: #9E2A2B;
+  --destructive-foreground: #FDFBF7;
 
-  /* Soft, Subtle Shadows */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.02);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.05), 0 10px 10px -5px rgb(0 0 0 / 0.02);
+  /* Organic, thicker radii */
+  --radius: 0.75rem;
+
+  /* Tinted Organic Shadows (Green/Brown base instead of Pitch Black) */
+  --shadow-sm: 0 1px 2px 0 rgba(27, 67, 50, 0.03);
+  --shadow: 0 4px 6px -1px rgba(27, 67, 50, 0.04), 0 2px 4px -2px rgba(27, 67, 50, 0.04);
+  --shadow-md: 0 10px 15px -3px rgba(27, 67, 50, 0.05), 0 4px 6px -4px rgba(27, 67, 50, 0.03);
+  --shadow-lg: 0 20px 25px -5px rgba(27, 67, 50, 0.05), 0 10px 10px -5px rgba(27, 67, 50, 0.02);
 }
 
 @theme inline {
@@ -53,6 +56,9 @@
   --color-secondary-foreground: var(--secondary-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -72,9 +78,15 @@
   --font-sans: var(--font-outfit), sans-serif;
   --font-serif: var(--font-crimson), serif;
 
-  --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-sm: calc(var(--radius) - 4px);
+  --radius-xl: 1rem;
+  --radius-lg: 0.75rem;
+  --radius-md: 0.5rem;
+  --radius-sm: 0.25rem;
+  
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
 }
 
 body {

@@ -1,0 +1,28 @@
+[
+    {
+        "id": "ICMR-1",
+        "topic": "Iron",
+        "claim": "Consuming vitamin C rich foods like amla or lemon enhances iron absorption from plant-based foods.",
+        "evidence_type": "guideline",
+        "population": "General Indian Population",
+        "limitations": "Should be consumed in the same meal for maximum efficacy.",
+        "citation": {
+            "source": "ICMR-NIN Dietary Guidelines for Indians",
+            "year": 2024,
+            "identifier": "General Nutrition Guidelines"
+        }
+    },
+    {
+        "id": "ICMR-2",
+        "topic": "Protein",
+        "claim": "Combining cereals and pulses in a 3:1 ratio provides complete protein for vegetarian diets.",
+        "evidence_type": "guideline",
+        "population": "Vegetarians",
+        "limitations": "Ensure adequate caloric intake to prevent protein being used for energy.",
+        "citation": {
+            "source": "ICMR-NIN Dietary Guidelines for Indians",
+            "year": 2024,
+            "identifier": "Protein and Amino Acids"
+        }
+    }
+]

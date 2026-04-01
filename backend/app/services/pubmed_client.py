@@ -13,13 +13,14 @@ class PubMedClient:
         if not settings.ENABLE_PUBMED:
             return []
 
+        import os
         params = {
             "db": "pubmed",
             "term": query,
             "retmode": "json",
             "retmax": retmax,
             "tool": "annapurna-ai",
-            "email": "local@annapurna.local" # Local mode identifier
+            "email": os.getenv("PUBMED_EMAIL", "annapurna-ai@example.com") # Use real email in prod
         }
         async with httpx.AsyncClient() as client:
             try:

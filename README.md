@@ -1,246 +1,195 @@
-# Annapurna-AI 🍚
+<div align="center">
+  <img src="public/annapurna_logo.png" alt="Annapurna-AI Logo" width="120" style="border-radius: 20%; margin-bottom: 20px;" />
+  
+  <h1 style="margin-top: 0;">Annapurna-AI 🍚</h1>
+  
+  <p><b>"Clone it. Run it. Own it. Your food data never leaves your machine."</b></p>
+  
+  <p>A fully local, privacy-first AI meal planner meticulously crafted for authentic South Indian, Andhra Telugu vegetarian cooking.</p>
 
-**"Clone it. Run it. Own it. Your food data never leaves your machine."**
-
-**Annapurna-AI** is a **fully local, privacy-first AI meal planner** for South Indian vegetarian cooking.
-
-The MVP focuses on **Andhra Telugu home cooking**, generating:
-
-* a **weekly meal plan** that feels like real home food, and
-* an **optimized grocery list** that minimizes waste and respects cultural cooking patterns,
-
-while keeping **all your data on your computer** — zero cloud dependencies, zero data leaks.
-
----
-
-## 🔒 Privacy First
-
-- **No cloud authentication** — No accounts, passwords, or sign-ups
-- **Local LLM processing** — Your meal data never leaves your machine
-- **SQLite database** — Your data lives in a file you control (`annapurna.db`)
-- **Optional online features** — USDA/PubMed integrations are opt-in, disabled by default
-- **Zero telemetry** — No analytics, tracking, or data collection
+  <p>
+    <a href="#-core-features">Features</a> •
+    <a href="#-quick-start">Quick Start</a> •
+    <a href="#%EF%B8%8F-tech-stack">Data & Tech Stack</a> •
+    <a href="#-models--llms">Models</a>
+  </p>
+</div>
 
 ---
 
-## MVP Scope
+## 🔒 The Privacy-First Promise
 
-* **Home cuisine:** South Indian vegetarian – Andhra Telugu household
-* **Purpose:** General wellness and meal planning
-* **Not supported:** Medical advice, disease-specific diets, supplements, weight-loss claims
+Annapurna-AI is built on the philosophy of complete data sovereignty. You don't need a SaaS subscription to eat well.
 
-This repository is a **local-first desktop application** optimized for privacy, simplicity, and end-to-end ownership.
-
----
-
-## Core Features
-
-* Weekly meal plan (breakfast / lunch / dinner)
-* Staple-first planning (rice, dals, vegetables)
-* Cultural meal structure enforcement
-* Optimized grocery list with ingredient reuse
-* Pantry-aware subtraction (optional)
-* Culture-preserving substitutions
-* Evidence-backed explanations with citations
-* **Local LLM support** — Ollama (default), LM Studio, llama.cpp, or any OpenAI-compatible endpoint
-
----
-
-## Cultural Constraints (Non-Negotiable)
-
-The planner **must**:
-
-* Use rice-centric meals
-* Prefer lentils (toor, moong, urad, chana) for protein
-* Use groundnut or sesame oil
-* Follow Andhra Telugu meal patterns
-* Avoid paneer-centric, North Indian, or Western defaults
-
-This is **home food**, not restaurant food.
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <h3>🚫 Zero Cloud Auth</h3>
+      <p>No accounts, passwords, or sign-ups required. Your identity is your own machine.</p>
+    </td>
+    <td width="50%" valign="top">
+      <h3>🧠 Local LLM Processing</h3>
+      <p>Powered locally via Ollama or LM Studio. Your dietary preferences never ping a remote cloud server.</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <h3>💾 Sovereign SQLite</h3>
+      <p>All data, generated plans, and fetched evidence live inside a single <code>annapurna.db</code> file that you alone own and control.</p>
+    </td>
+    <td width="50%" valign="top">
+      <h3>📡 Zero Telemetry</h3>
+      <p>No hidden analytics, tracking, or data harvesting. External APIs (USDA/PubMed) are strictly opt-in.</p>
+    </td>
+  </tr>
+</table>
 
 ---
 
-## Tech Stack (Local-First)
+## ✨ Core Features
 
-### Frontend
-
-* **Next.js** (App Router)
-* **TypeScript**
-* **Tailwind CSS** + **Radix UI**
-* **TanStack Query**
-
-### Backend
-
-* **FastAPI** (Python 3.11+)
-* **SQLModel** (SQLite for local persistence)
-* **LiteLLM** (Unified LLM Interface)
-* **aiosqlite** (Async SQLite driver)
-* **Structlog** (Structured JSON Logging)
-
-### AI (Local)
-
-* **Ollama** (default — runs locally on your machine)
-* Supports: Llama 3.2, Mistral, Phi-3, or any GGUF model
-* Also compatible with: LM Studio, llama.cpp, LocalAI
-
-### Deployment
-
-* **Local development**: `npm run dev` + `uvicorn app.main:app --reload`
-* **Docker**: `docker compose up --build`
-* **Your data**: Stored in `backend/annapurna.db` (SQLite file)
+<table>
+  <tr>
+    <td width="33%" valign="top">
+      <b>🍲 Cultural Authenticity</b><br/>
+      Home-style Andhra Telugu meal patterns. Enforces rice-centric pairings, traditional dals, and spice profiles. Zero generic "Western" diet defaults.
+    </td>
+    <td width="33%" valign="top">
+      <b>📅 Intelligent Planning</b><br/>
+      Generates structured weekly plans (Breakfast, Lunch, Dinner) optimized for ingredient reuse and zero food waste.
+    </td>
+    <td width="33%" valign="top">
+      <b>🛒 Automated Groceries</b><br/>
+      Instantly compiles grocery lists based on your weekly generated meals, categorized intuitively.
+    </td>
+  </tr>
+  <tr>
+    <td width="33%" valign="top">
+      <b>📚 Evidence-Backed</b><br/>
+      Grounded in ICMR/NIN guidelines. Optional NIH/PubMed fetching for nutritional literature support.
+    </td>
+    <td width="33%" valign="top">
+      <b>🎨 Premium UI</b><br/>
+      A beautiful, organic, culturally-aligned interface built with Tailwind v4 and React.
+    </td>
+    <td width="33%" valign="top">
+      <b>🎛️ Bring Your Own AI</b><br/>
+      Plug in any GGUF model via LiteLLM. Works seamlessly with local edge models like Llama 3.2 or Mistral.
+    </td>
+  </tr>
+</table>
 
 ---
 
-## Quick Start (5 Minutes)
+## 🚀 Quick Start
 
-### 1. Install Ollama
+Get up and running locally in under 5 minutes.
 
-**macOS/Linux:**
-```bash
-curl -fsSL https://ollama.ai/install.sh | sh
-```
-
-**Windows:** Download from [ollama.com](https://ollama.com)
-
-### 2. Pull a Model
-
+### 1. Engine Setup
+Ensure you have [Ollama](https://ollama.com) installed and pull a lightweight model:
 ```bash
 ollama pull llama3.2:latest
 ```
 
-### 3. Clone & Setup
-
+### 2. Clone & Bootstrap
 ```bash
 git clone https://github.com/Anudeepsrib/Annapurna-AI.git
 cd Annapurna-AI
 
-# Run setup script
+# Run the automated setup script
 # macOS/Linux:
 bash scripts/setup.sh
 
-# Windows PowerShell:
+# Windows:
 .\scripts\setup.ps1
 ```
 
-### 4. Run
+### 3. Launch
+Launch two terminal windows to start the backend engine and frontend interface.
 
-**Terminal 1 — Backend:**
+**Terminal 1 — Local Backend Server:**
 ```bash
 cd backend
 source venv/bin/activate  # Windows: .\venv\Scripts\activate
 python -m uvicorn app.main:app --reload
 ```
 
-**Terminal 2 — Frontend:**
+**Terminal 2 — Next.js Frontend:**
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
+Open [http://localhost:3000](http://localhost:3000) to begin planning your meals.
 
 ---
 
-## Configuration
+## 🛠️ Tech Stack
 
-Create `backend/.env` (or copy from `env.example`):
+<table>
+  <tr>
+    <th width="50%">Frontend (App Router)</th>
+    <th width="50%">Backend (Data Engine)</th>
+  </tr>
+  <tr>
+    <td valign="top">
+      <ul>
+        <li><b>Framework:</b> Next.js 14</li>
+        <li><b>Styling:</b> Tailwind CSS v4 + Radix UI</li>
+        <li><b>State:</b> TanStack Query</li>
+        <li><b>Language:</b> TypeScript</li>
+      </ul>
+    </td>
+    <td valign="top">
+      <ul>
+        <li><b>API:</b> FastAPI (Python 3.11+)</li>
+        <li><b>Database:</b> SQLModel + aiosqlite</li>
+        <li><b>Orchestration:</b> LiteLLM</li>
+        <li><b>Logging:</b> Structlog</li>
+      </ul>
+    </td>
+  </tr>
+</table>
 
-```bash
-# LLM Settings (defaults work with Ollama)
+---
+
+## 🧠 Models & LLMs
+
+We recommend local models with at least 3 Billion parameters for optimal JSON formatting and culinary coherence.
+
+| Model | Resource Size | Quality/Speed | Best Use Case |
+|-------|---------------|---------------|---------------|
+| **Llama 3.2 3B** | `~2GB RAM` | ⚡ Fast / Good | Quick iterations, older hardware. |
+| **Llama 3.2 7B** | `~4GB RAM` | ⚖️ Balanced | The sweet spot for detail and velocity. |
+| **Mistral 7B** | `~4GB RAM` | 🎨 Creative | Excellent meal variety and structure. |
+| **Phi-3 Mini** | `~2GB RAM` | 🔋 Efficient | Battery-friendly edge computing. |
+
+---
+
+## ⚙️ Configuration
+
+Your instance can be customized entirely via the `backend/.env` file:
+
+```env
+# AI Provider targeting a local Ollama instance
 LLM_PROVIDER=ollama
 LLM_BASE_URL=http://localhost:11434
 LLM_MODEL=llama3.2:latest
 
-# Database (SQLite — local file)
+# Local Database Persistence
 DATABASE_URL=sqlite+aiosqlite:///./annapurna.db
 
-# Optional: Enable external APIs (requires internet)
+# Optional Data Fetchers (Disabled by Default for Privacy)
 ENABLE_USDA=false
 ENABLE_PUBMED=false
-USDA_API_KEY=  # Get from https://fdc.nal.usda.gov/api-key-signup.html
+# PUBMED_EMAIL=annapurna-ai@example.com
 ```
 
 ---
 
-## Repository Structure
-
-```
-annapurna-ai/
-├── app/                    # Next.js app
-│   ├── settings/           # Local LLM configuration UI
-│   ├── profile/            # Meal preferences
-│   ├── plan/               # Generated meal plans
-│   └── ...
-├── backend/
-│   ├── app/
-│   │   ├── api/            # FastAPI routes
-│   │   ├── core/           # Config, database
-│   │   ├── services/       # LLM, planning, evidence
-│   │   └── models/         # SQLModel schemas
-│   ├── data/               # Seed recipes, nutrition data
-│   └── annapurna.db        # Your local SQLite database
-├── components/ui/          # Radix UI components
-├── scripts/                # Setup scripts
-└── LOCAL_SETUP.md          # Detailed setup guide
-```
+## ⚠️ Disclaimer
+**General Wellness Only:** Annapurna-AI is an educational software project. It does **not** provide medical advice, diagnosis, or treatment protocols. Users with specific medical conditions should consult a qualified healthcare professional.
 
 ---
-
-## Model Recommendations
-
-| Model | Size | Quality | Best For |
-|-------|------|---------|----------|
-| Llama 3.2 3B | ~2GB | Good | Fast, structured output |
-| Llama 3.2 7B | ~4GB | Very Good | Best balance quality/speed |
-| Mistral 7B | ~4GB | Very Good | Creative meal variety |
-| Phi-3 Mini | ~2GB | Good | Low resource usage |
-
-For best results, use a 7B+ parameter model.
-
----
-
-## How It Works
-
-1. User sets preferences (household size, spice level)
-2. Local LLM generates candidate meals
-3. Cultural consistency rules validate authenticity
-4. Weekly plan is optimized for ingredient reuse
-5. Grocery list is consolidated
-6. Evidence notes attached (from local database or optional APIs)
-
-**All processing happens locally** — no data sent to external servers.
-
----
-
-## Your Data
-
-- **Location**: `backend/annapurna.db`
-- **Format**: SQLite (standard, portable)
-- **Backup**: Copy the `.db` file
-- **Reset**: Delete the `.db` file and restart
-- **Privacy**: You own and control everything
-
----
-
-## Safety & Disclaimer
-
-Annapurna-AI provides **general wellness and educational information only**.
-
-It does **not** provide medical advice, diagnosis, or treatment.
-Users with medical conditions should consult qualified professionals.
-
----
-
-## Roadmap
-
-* v0.1: Local-first Andhra Telugu planner ✅
-* v0.2: Meal swaps + saved plans
-* v0.3: More South Indian regional cuisines
-* v0.4: Pantry integration + nutrition tracking
-
----
-
-## Status
-
-✅ **Local MVP Ready**
-
-Zero cloud dependencies. Fully functional offline.
+<div align="center">
+  <p>Built with ❤️ for South Indian Kitchens.</p>
+</div>

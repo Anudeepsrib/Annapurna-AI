@@ -55,8 +55,20 @@ class LLMService:
             }
 
             if json_mode:
+                # Add strict instructions for smaller local-LLMs that struggle with formatting
+                kwargs["messages"].append({
+                    "role": "system",
+                    "content": "CRITICAL: You must output ONLY valid JSON. Do not include markdown blocks (```json ... ```) or any other text before or after the JSON string."
+                })
+                
+                # LitellM supports 'response_format' mapping, but some older/smaller providers reject it.
+                # We try applying it but if it fails, the system prompt acts as a fallback.
                 kwargs["response_format"] = {"type": "json_object"}
-
+                
+                # For Ollama, native format passing is safer for older versions
+                if self.provider == "ollama":
+                    kwargs["format"] = "json"
+                    
             logger.info("LLM Call Starting", provider=self.provider, model=self.model, base_url=self.base_url)
 
             response = await litellm.acompletion(**kwargs)

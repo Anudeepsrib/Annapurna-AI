@@ -4,9 +4,13 @@ from typing import List
 from app.models.schemas import EvidenceClaim, FoodItem
 
 class EvidenceService:
-    def __init__(self, data_dir: str = "../data/evidence"):
-        # Adjust path relative to where app is run. Assuming run from backend/ dir.
-        self.data_dir = data_dir
+    def __init__(self, data_dir: str = None):
+        # Always use absolute path to gracefully resolve from any run directory
+        if data_dir is None:
+            self.data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data", "evidence"))
+        else:
+            self.data_dir = data_dir
+            
         self.guidelines = self._load_guidelines()
         self.food_composition = self._load_food_composition()
 
@@ -47,4 +51,4 @@ class EvidenceService:
         ]
 
 # Singleton instance
-evidence_service = EvidenceService(data_dir="data/evidence")
+evidence_service = EvidenceService()

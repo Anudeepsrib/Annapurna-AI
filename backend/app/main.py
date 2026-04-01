@@ -38,10 +38,10 @@ app = FastAPI(
 app.add_exception_handler(AppError, app_exception_handler)
 app.add_exception_handler(Exception, general_exception_handler)
 
-# Configure CORS - wide open for local development
+# Configure CORS - restricted for local desktop safety
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

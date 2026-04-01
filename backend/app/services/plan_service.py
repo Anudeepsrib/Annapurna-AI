@@ -20,7 +20,8 @@ class PlanService:
         plan_data = None
         
         # 1. Attempt LLM Generation
-        if os.getenv("OPENAI_API_KEY"):
+        from app.core.config import settings
+        if settings.LLM_PROVIDER:
             try:
                 plan_data = await self._generate_with_llm(request, user_id)
             except Exception as e:
@@ -41,8 +42,8 @@ class PlanService:
         Retrieves the most recent plan for the user.
         """
         statement = select(MealPlan).where(MealPlan.user_id == user_id).order_by(MealPlan.created_at.desc())
-        result = await self.session.exec(statement)
-        plan = result.first()
+        result = await self.session.execute(statement)
+        plan = result.scalars().first()
         
         if plan:
             return plan.plan_data
