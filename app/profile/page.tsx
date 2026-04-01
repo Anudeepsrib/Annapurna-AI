@@ -4,17 +4,13 @@ import { useState } from "react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowRight, Utensils, Flame, Leaf } from "lucide-react"
+import { ArrowRight } from "lucide-react"
 import { toast } from "sonner"
 
-import { useAuth } from "@clerk/nextjs"
-
 export default function ProfilePage() {
-    const { getToken } = useAuth()
     const [householdSize, setHouseholdSize] = useState("2")
     const [spiceLevel, setSpiceLevel] = useState("medium")
     const [dietary] = useState("vegetarian")
@@ -22,13 +18,11 @@ export default function ProfilePage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
 
-        const token = await getToken()
-
+        // Local mode - no auth token needed
         const promise = fetch("/api/python/generate-plan", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
             },
             body: JSON.stringify({ householdSize, spiceLevel, dietary }),
         })

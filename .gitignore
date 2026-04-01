@@ -33,16 +33,15 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# BUT track env.example as a template
+!env.example
 
-# vercel
+# vercel (legacy - app is now local-first)
 .vercel
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# clerk configuration (can include secrets)
-/.clerk/
 
 # Python
 __pycache__/
@@ -83,3 +82,17 @@ htmlcov/
 .idea/
 *.swp
 *.swo
+
+# Local SQLite databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Local data directories
+/data/
+/annapurna-data/
+
+# Local environment overrides
+backend/.env
+backend/.env.local
+.env.local

@@ -1,7 +1,7 @@
 import Link from "next/link"
 import Image from "next/image"
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button"
+import { Settings } from "lucide-react"
 
 export function Header() {
     return (
@@ -29,16 +29,12 @@ export function Header() {
                     <Link href="/about" className="text-sm font-medium text-primary-foreground/90 hover:text-accent transition-colors">
                         About
                     </Link>
-                    <SignedOut>
-                        <SignInButton mode="modal">
-                            <Button size="sm" className="bg-white text-primary hover:bg-white/90 border-transparent shadow-none">
-                                Sign In
-                            </Button>
-                        </SignInButton>
-                    </SignedOut>
-                    <SignedIn>
-                        <UserButton afterSignOutUrl="/" />
-                    </SignedIn>
+                    <Link href="/settings" className="text-sm font-medium text-primary-foreground/90 hover:text-accent transition-colors">
+                        <Settings className="h-5 w-5" />
+                    </Link>
+                    <span className="text-xs bg-white/20 px-2 py-1 rounded text-primary-foreground/80">
+                        Local Mode
+                    </span>
                 </nav>
             </div>
         </header>

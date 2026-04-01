@@ -1,48 +1,30 @@
 services:
   # Backend Service
   backend:
-    build: 
+    build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: annapurna-backend
     ports:
       - "8000:8000"
+    volumes:
+      - annapurna-data:/app/data  # Persistent local storage for SQLite
     environment:
-      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/annapurna
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - USDA_API_KEY=${USDA_API_KEY}
-      # CORS: Allow localhost frontend
-      - BACKEND_CORS_ORIGINS=["http://localhost:3000"]
-    depends_on:
-      db:
-        condition: service_healthy
+      - DATABASE_URL=sqlite+aiosqlite:///app/data/annapurna.db
+      - LLM_BASE_URL=http://host.docker.internal:11434  # Reach Ollama on host
+      - LLM_MODEL=llama3.2:latest
+      - LLM_PROVIDER=ollama
+      - ENABLE_USDA=false
+      - ENABLE_PUBMED=false
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - annapurna-net
 
-  # Database Service (Postgres)
-  db:
-    image: postgres:15-alpine
-    container_name: annapurna-db
-    restart: always
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=annapurna
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    networks:
-      - annapurna-net
+volumes:
+  annapurna-data:
+    driver: local
 
 networks:
   annapurna-net:
     driver: bridge
-
-volumes:
-  postgres_data:
