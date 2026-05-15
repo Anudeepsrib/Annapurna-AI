@@ -1,40 +1,45 @@
-# Annapurna-AI Backend (Evidence System)
+# Annapurna-AI Backend
 
-A deterministic, safety-first evidence backend for the Annapurna-AI meal planner.
+FastAPI backend for local-first meal planning.
 
-## Architecture
+## Run
 
-1.  **Curated Evidence (`/data/evidence`)**:
-    *   **Guidelines**: ICMR-NIN 2024 data.
-    *   **Food Composition**: IFCT 2017 data.
-    *   *Stored as versioned JSON files for auditability.*
-
-2.  **MCP Tools (`/app/services`)**:
-    *   `PubMedClient`: Fetches research abstracts if curated evidence is missing.
-    *   `USDAClient`: Backup food data source.
-
-3.  **Orchestrator**:
-    *   Checks curated data first.
-    *   Blocks unsafe/medical queries (e.g., "diabetes", "cure").
-    *   Falls back to PubMed for general wellness research.
-
-## Usage
-
-### Run locally
 ```bash
-cd backend
+python -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
-python -m app.main
+cp ../env.example .env
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-### API Endpoints
+Windows activation:
 
-- **GET /api/v1/evidence/{topic}**: Smart evidence retrieval.
-- **GET /api/v1/mcp/ifct/search?query=...**: Search Indian Food Tables.
-- **GET /api/v1/mcp/usda/search?query=...**: Search USDA database.
+```powershell
+.\venv\Scripts\Activate.ps1
+```
 
-## Safety Constraints
+## Endpoints
 
-- **No Medical Advice**: Queries related to disease treatment are blocked.
-- **Disclaimer**: All responses include a standard wellness disclaimer.
-- **Audit Logging**: Every request is logged with timestamp and query details.
+- `GET /health`
+- `GET /api/v1/health`
+- `POST /api/v1/generate-plan`
+- `GET /api/v1/plan`
+- `GET /api/v1/grocery-list`
+- `GET /api/v1/evidence/{topic}`
+- `GET /api/v1/mcp/ifct/search?query=rice`
+- `GET /api/v1/mcp/usda/search?query=rice`
+
+## Privacy Defaults
+
+- SQLite is local.
+- Ollama is the default LLM provider.
+- USDA and PubMed are disabled by default.
+- `ENABLE_EXTERNAL_NETWORK=false` blocks optional fetchers.
+- Health endpoints do not return API keys, database paths, or stack traces.
+
+## Safety
+
+This backend provides general wellness planning only. It validates LLM output
+before saving and applies guardrails for medical-condition, pregnancy, kidney
+disease, severe allergy, pediatric, medication-interaction, eating-disorder, and
+extreme weight-loss prompts.

@@ -1,8 +1,6 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
-/.pnp
+# Dependencies
+node_modules/
+.pnp
 .pnp.*
 .yarn/*
 !.yarn/patches
@@ -10,48 +8,31 @@
 !.yarn/releases
 !.yarn/versions
 
-# testing
-/coverage
-
-# next.js
-/.next/
-/out/
-
-# production
-/build
-
-# misc
-.DS_Store
-*.pem
-/.agent
-
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-# env files (can opt-in for committing if needed)
-.env*
-# BUT track env.example as a template
-!env.example
-
-# vercel (legacy - app is now local-first)
-.vercel
-
-# typescript
+# Next.js and frontend build output
+.next/
+out/
+dist/
+build/
+coverage/
 *.tsbuildinfo
 next-env.d.ts
 
-# Python
+# Environment files and secrets
+.env
+.env.*
+!.env.example
+env.local
+.env.local
+backend/.env
+backend/.env.*
+
+# Python bytecode and build output
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-build/
 develop-eggs/
-dist/
 downloads/
 eggs/
 .eggs/
@@ -65,34 +46,53 @@ share/python-wheels/
 *.egg
 MANIFEST
 
-# Virtual Environments
+# Python virtual environments
 venv/
+.venv/
 env/
 ENV/
 env.bak/
 venv.bak/
+backend/venv/
+backend/.venv/
 
-# Testing
+# Test, type-check, and lint caches
 .pytest_cache/
+.ruff_cache/
+.mypy_cache/
 .coverage
 htmlcov/
-
-# Editor/IDE
-.vscode/
-.idea/
-*.swp
-*.swo
 
 # Local SQLite databases
 *.db
 *.sqlite
 *.sqlite3
+annapurna.db
+backend/annapurna.db
 
-# Local data directories
+# Local generated/private data
 /data/
-/annapurna-data/
+backend/data/
+annapurna-data/
+generated/
+reports/
+logs/
+*.log
 
-# Local environment overrides
-backend/.env
-backend/.env.local
-.env.local
+# Model artifacts and local caches
+/models/
+*.gguf
+*.safetensors
+.cache/
+
+# IDE and OS files
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+*.pem
+.agent/
+
+# Deployment metadata
+.vercel/

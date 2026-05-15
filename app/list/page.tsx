@@ -1,37 +1,34 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
+import Link from "next/link"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { ArrowLeft, Share2, Printer } from "lucide-react"
-import Link from "next/link"
-
-
+import { ApiClient, type GroceryCategory } from "@/lib/api"
+import { ArrowLeft, Printer, RefreshCw, Share2 } from "lucide-react"
 
 export default function GroceryPage() {
     const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({})
-    const [groceryCategories, setGroceryCategories] = useState<any[]>([])
+    const [groceryCategories, setGroceryCategories] = useState<GroceryCategory[]>([])
     const [loading, setLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
-        fetch("/api/python/grocery-list")
-            .then(res => res.json())
-            .then(data => {
+        ApiClient.getGroceryList()
+            .then((data) => {
                 setGroceryCategories(data)
-                setLoading(false)
+                setError(null)
             })
-            .catch(err => {
-                console.error("Failed to fetch grocery list:", err)
-                setLoading(false)
-            })
+            .catch(() => setError("Could not load the grocery list. Check that the backend is running."))
+            .finally(() => setLoading(false))
     }, [])
 
     const toggleItem = (id: string) => {
-        setCheckedItems(prev => ({ ...prev, [id]: !prev[id] }))
+        setCheckedItems((prev) => ({ ...prev, [id]: !prev[id] }))
     }
 
     return (
@@ -47,7 +44,7 @@ export default function GroceryPage() {
                         </Link>
                         <div>
                             <h1 className="font-serif text-3xl font-bold">Grocery List</h1>
-                            <p className="text-muted-foreground">For Feb 12 - Feb 18 Plan</p>
+                            <p className="text-muted-foreground">Generated from your latest local plan.</p>
                         </div>
                     </div>
 
@@ -62,14 +59,29 @@ export default function GroceryPage() {
 
                     <div className="space-y-6">
                         {loading ? (
-                            <div className="text-center py-10">Loading grocery list...</div>
+                            <div className="flex items-center justify-center gap-2 py-10 text-muted-foreground">
+                                <RefreshCw className="h-4 w-4 animate-spin" />
+                                Loading grocery list...
+                            </div>
+                        ) : error ? (
+                            <Card>
+                                <CardContent className="pt-6 text-center text-muted-foreground">
+                                    {error}
+                                </CardContent>
+                            </Card>
+                        ) : groceryCategories.length === 0 ? (
+                            <Card>
+                                <CardContent className="pt-6 text-center text-muted-foreground">
+                                    No grocery items yet. Generate a plan first.
+                                </CardContent>
+                            </Card>
                         ) : (
                             groceryCategories.map((category) => (
                                 <Card key={category.name}>
                                     <CardContent className="pt-6">
                                         <h3 className="font-serif text-xl font-bold mb-4 text-primary">{category.name}</h3>
                                         <div className="space-y-3">
-                                            {category.items.map((item: any) => (
+                                            {category.items.map((item) => (
                                                 <div key={item.id} className="flex items-start space-x-3 group">
                                                     <Checkbox
                                                         id={item.id}
@@ -84,7 +96,7 @@ export default function GroceryPage() {
                                                         >
                                                             {item.name}
                                                         </Label>
-                                                        <div className={`text-sm text-muted-foreground flex justify-between ${checkedItems[item.id] ? "opacity-50" : ""}`}>
+                                                        <div className={`text-sm text-muted-foreground flex justify-between gap-4 ${checkedItems[item.id] ? "opacity-50" : ""}`}>
                                                             <span>{item.quantity}</span>
                                                             <span className="text-xs italic hidden group-hover:inline-block transition-opacity opacity-70">
                                                                 Used in: {item.meals.join(", ")}

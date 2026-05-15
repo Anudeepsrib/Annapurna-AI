@@ -41,8 +41,8 @@ echo -e "${GREEN}✅ Python $PYTHON_VERSION${NC}"
 echo ""
 echo "🤖 Checking Ollama..."
 if ! command -v ollama &> /dev/null; then
-    echo -e "${YELLOW}⚠️  Ollama not found. Installing...${NC}"
-    curl -fsSL https://ollama.ai/install.sh | sh
+    echo -e "${YELLOW}⚠️  Ollama not found. Install it from https://ollama.com and rerun this script.${NC}"
+    exit 1
 fi
 echo -e "${GREEN}✅ Ollama installed${NC}"
 

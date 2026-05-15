@@ -1,7 +1,9 @@
+from typing import Any, Dict
+
 import httpx
-import os
-from typing import Dict, Any
+
 from app.core.config import settings
+
 
 class USDAClient:
     BASE_URL = "https://api.nal.usda.gov/fdc/v1"
@@ -12,27 +14,26 @@ class USDAClient:
         Returns empty dict if USDA is disabled or no API key.
         """
         # Check if USDA lookups are enabled
-        if not settings.ENABLE_USDA:
+        if not settings.ENABLE_EXTERNAL_NETWORK or not settings.ENABLE_USDA:
             return {}
 
         # Use API key from settings
-        api_key = settings.USDA_API_KEY or "DEMO_KEY"
-        if api_key == "DEMO_KEY":
-            # In local-first mode, we prefer to skip API calls without a real key
+        api_key = settings.USDA_API_KEY
+        if not api_key:
             return {}
 
         params = {
             "query": query,
             "api_key": api_key,
-            "pageSize": 5
+            "pageSize": 5,
         }
         async with httpx.AsyncClient() as client:
             try:
                 response = await client.get(f"{self.BASE_URL}/foods/search", params=params)
                 response.raise_for_status()
                 return response.json()
-            except Exception as e:
-                print(f"USDA Search Error: {e}")
+            except Exception:
                 return {}
+
 
 usda_client = USDAClient()

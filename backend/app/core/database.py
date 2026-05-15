@@ -1,21 +1,20 @@
-from sqlmodel import SQLModel
+import os
+from typing import AsyncGenerator
+
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
-from typing import AsyncGenerator
+from sqlalchemy.pool import NullPool
+from sqlmodel import SQLModel
+
 from app.core.config import settings
 
-import os
-from sqlalchemy.pool import NullPool
+DATABASE_URL = str(settings.DATABASE_URL)
 
-# Construct Async Database URL based on settings
-# If DATABASE_URL is set (Production), use it.
-# Otherwise, fall back to async SQLite for local dev/testing.
-if settings.DATABASE_URL:
-    DATABASE_URL = str(settings.DATABASE_URL)
-else:
-    # Use absolute path to avoid unpredicted file creation inside arbitrary terminals
-    db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "annapurna.db"))
-    DATABASE_URL = f"sqlite+aiosqlite:///{db_path}"
+if DATABASE_URL.startswith("sqlite") and ":///" in DATABASE_URL:
+    db_path = DATABASE_URL.split(":///", 1)[1]
+    if db_path and db_path != ":memory:":
+        db_dir = os.path.dirname(os.path.abspath(db_path))
+        os.makedirs(db_dir, exist_ok=True)
 
 # SQLite doesn't play well with Postgres connection pools
 engine_kwargs = {
@@ -23,17 +22,20 @@ engine_kwargs = {
     "future": True,
 }
 
-if "sqlite" in DATABASE_URL:
+if DATABASE_URL.startswith("sqlite"):
     engine_kwargs["poolclass"] = NullPool
 else:
-    engine_kwargs.update({
-        "pool_size": 20,
-        "max_overflow": 10,
-        "pool_pre_ping": True
-    })
+    engine_kwargs.update(
+        {
+            "pool_size": 20,
+            "max_overflow": 10,
+            "pool_pre_ping": True,
+        }
+    )
 
 # Create Async Engine
 engine = create_async_engine(DATABASE_URL, **engine_kwargs)
+
 
 async def create_db_and_tables():
     """
@@ -42,12 +44,11 @@ async def create_db_and_tables():
     async with engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
 
+
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
     """
     Dependency to provide an Async DB session per request.
     """
-    async_session = sessionmaker(
-        engine, class_=AsyncSession, expire_on_commit=False
-    )
+    async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
     async with async_session() as session:
         yield session

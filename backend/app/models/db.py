@@ -1,7 +1,9 @@
-from typing import Optional
-from sqlmodel import Field, SQLModel
-from datetime import datetime
 import json
+from datetime import UTC, datetime
+from typing import Optional
+
+from sqlmodel import Field, SQLModel
+
 
 class MealPlan(SQLModel, table=True):
     """
@@ -9,12 +11,12 @@ class MealPlan(SQLModel, table=True):
     """
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: str = Field(index=True)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+
     # Store the JSON blob of the plan directly
     # In a larger app, we might normalize meals into separate tables,
     # but for this MVP, storing the complex JSON structure is efficient.
-    plan_json: str # JSON stringified content
+    plan_json: str  # JSON stringified content
 
     @property
     def plan_data(self):

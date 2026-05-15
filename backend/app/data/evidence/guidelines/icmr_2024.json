@@ -1,28 +1,54 @@
 [
-    {
-        "id": "ICMR-1",
-        "topic": "Iron",
-        "claim": "Consuming vitamin C rich foods like amla or lemon enhances iron absorption from plant-based foods.",
-        "evidence_type": "guideline",
-        "population": "General Indian Population",
-        "limitations": "Should be consumed in the same meal for maximum efficacy.",
-        "citation": {
-            "source": "ICMR-NIN Dietary Guidelines for Indians",
-            "year": 2024,
-            "identifier": "General Nutrition Guidelines"
-        }
-    },
-    {
-        "id": "ICMR-2",
-        "topic": "Protein",
-        "claim": "Combining cereals and pulses in a 3:1 ratio provides complete protein for vegetarian diets.",
-        "evidence_type": "guideline",
-        "population": "Vegetarians",
-        "limitations": "Ensure adequate caloric intake to prevent protein being used for energy.",
-        "citation": {
-            "source": "ICMR-NIN Dietary Guidelines for Indians",
-            "year": 2024,
-            "identifier": "Protein and Amino Acids"
-        }
+  {
+    "id": "ICMR-2024-IRON-01",
+    "topic": "iron",
+    "claim": "Vitamin C rich foods such as lemon or amla can support absorption of iron from plant-based foods when eaten in the same meal.",
+    "evidence_type": "guideline",
+    "population": "General Indian population",
+    "limitations": "General wellness guidance only; not a treatment plan for anemia or any medical condition.",
+    "citation": {
+      "source": "ICMR-NIN Dietary Guidelines for Indians",
+      "year": 2024,
+      "identifier": "General nutrition guidance"
     }
+  },
+  {
+    "id": "ICMR-2024-PROTEIN-01",
+    "topic": "protein",
+    "claim": "Cereal and pulse combinations are a familiar way to improve protein quality in vegetarian meal patterns.",
+    "evidence_type": "guideline",
+    "population": "Vegetarian adults",
+    "limitations": "Approximate planning guidance; individual needs vary by age, activity, and clinical status.",
+    "citation": {
+      "source": "ICMR-NIN Dietary Guidelines for Indians",
+      "year": 2024,
+      "identifier": "Protein and amino acid guidance"
+    }
+  },
+  {
+    "id": "ICMR-2024-PROTEIN-02",
+    "topic": "protein",
+    "claim": "The RDA cited for Indian adults is commonly represented around 0.83 g/kg body weight/day.",
+    "evidence_type": "guideline",
+    "population": "Adult Indians",
+    "limitations": "Do not use this as personalized clinical nutrition advice.",
+    "citation": {
+      "source": "ICMR-NIN Dietary Guidelines for Indians",
+      "year": 2024,
+      "identifier": "Protein requirements"
+    }
+  },
+  {
+    "id": "ICMR-2024-FAT-01",
+    "topic": "fat",
+    "claim": "Visible fats are best treated as a limited ingredient in everyday planning rather than the center of the meal.",
+    "evidence_type": "guideline",
+    "population": "Adult Indians",
+    "limitations": "General wellness framing only; clinical lipid management requires professional care.",
+    "citation": {
+      "source": "ICMR-NIN Dietary Guidelines for Indians",
+      "year": 2024,
+      "identifier": "Visible fat guidance"
+    }
+  }
 ]

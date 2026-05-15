@@ -19,7 +19,7 @@ interface GroceryListDialogProps {
 }
 
 export function GroceryListDialog({ open, onOpenChange }: GroceryListDialogProps) {
-    const { data: groceryList, isLoading } = useGetGroceryList()
+    const { data: groceryList, isLoading, isError } = useGetGroceryList()
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -39,6 +39,10 @@ export function GroceryListDialog({ open, onOpenChange }: GroceryListDialogProps
                         <div className="flex flex-col items-center justify-center h-40 gap-4 text-muted-foreground">
                             <Loader2 className="h-8 w-8 animate-spin" />
                             <p>Curating your list...</p>
+                        </div>
+                    ) : isError ? (
+                        <div className="flex flex-col items-center justify-center h-40 text-muted-foreground">
+                            <p>Could not load the grocery list. Check that the backend is running.</p>
                         </div>
                     ) : groceryList && groceryList.length > 0 ? (
                         <div className="space-y-8">

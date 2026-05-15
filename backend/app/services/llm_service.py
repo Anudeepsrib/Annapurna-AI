@@ -1,14 +1,13 @@
-import os
+from typing import Optional
+
 import litellm
 import structlog
-from dotenv import load_dotenv
-from typing import Optional
-from app.core.config import settings
 
-load_dotenv()
+from app.core.config import settings
 
 # Configure structlog logger
 logger = structlog.get_logger()
+
 
 class LLMService:
     def __init__(self):
@@ -21,6 +20,9 @@ class LLMService:
         # Disable LiteLLM callbacks for privacy (local mode)
         litellm.success_callback = []
         litellm.failure_callback = []
+        litellm.callbacks = []
+        setattr(litellm, "telemetry", False)
+        setattr(litellm, "turn_off_message_logging", True)
 
     def _get_model_string(self) -> str:
         """
@@ -30,12 +32,17 @@ class LLMService:
         """
         if self.provider == "ollama":
             return f"ollama/{self.model}"
-        else:
-            # For LM Studio, llama.cpp, LocalAI, etc.
-            # They use OpenAI-compatible API, so prefix with 'openai/'
-            return f"openai/{self.model}"
+        # For LM Studio, llama.cpp, LocalAI, etc.
+        # They use OpenAI-compatible API, so prefix with 'openai/'.
+        return f"openai/{self.model}"
 
-    async def generate_response(self, system_prompt: str, user_prompt: str, json_mode: bool = False, user_id: Optional[str] = None) -> Optional[str]:
+    async def generate_response(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        json_mode: bool = False,
+        user_id: Optional[str] = None,
+    ) -> Optional[str]:
         """
         Generate a response using LiteLLM with local LLM endpoint.
         No data leaves the user's machine.
@@ -47,29 +54,36 @@ class LLMService:
                 "model": model_string,
                 "messages": [
                     {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
+                    {"role": "user", "content": user_prompt},
                 ],
                 "temperature": 0.7,
                 "api_base": self.base_url,
-                "api_key": self.api_key if self.api_key != "not-needed" else None,
+                "api_key": self.api_key,
+                "timeout": 30,
+                "metadata": {"user_id": user_id or "local-user"},
             }
 
             if json_mode:
                 # Add strict instructions for smaller local-LLMs that struggle with formatting
-                kwargs["messages"].append({
-                    "role": "system",
-                    "content": "CRITICAL: You must output ONLY valid JSON. Do not include markdown blocks (```json ... ```) or any other text before or after the JSON string."
-                })
-                
+                kwargs["messages"].append(
+                    {
+                        "role": "system",
+                        "content": (
+                            "CRITICAL: Output only valid JSON. Do not include markdown fences, "
+                            "comments, or text before or after the JSON."
+                        ),
+                    }
+                )
+
                 # LitellM supports 'response_format' mapping, but some older/smaller providers reject it.
                 # We try applying it but if it fails, the system prompt acts as a fallback.
                 kwargs["response_format"] = {"type": "json_object"}
-                
+
                 # For Ollama, native format passing is safer for older versions
                 if self.provider == "ollama":
                     kwargs["format"] = "json"
-                    
-            logger.info("LLM Call Starting", provider=self.provider, model=self.model, base_url=self.base_url)
+
+            logger.info("LLM call starting", provider=self.provider, model=self.model)
 
             response = await litellm.acompletion(**kwargs)
 
@@ -77,12 +91,12 @@ class LLMService:
 
             # Log usage locally only
             usage = response.usage
-            logger.info("LLM Call Success", model=model_string, usage=dict(usage))
+            logger.info("LLM call succeeded", model=model_string, usage=dict(usage or {}))
 
             return content
 
         except Exception as e:
-            logger.error("LLM Generation Failed", error=str(e), provider=self.provider, base_url=self.base_url)
+            logger.warning("LLM generation failed", error=str(e), provider=self.provider)
             return None
 
     async def test_connection(self) -> dict:
@@ -92,12 +106,13 @@ class LLMService:
         try:
             model_string = self._get_model_string()
             # Simple test prompt
-            response = await litellm.acompletion(
+            await litellm.acompletion(
                 model=model_string,
                 messages=[{"role": "user", "content": "Say 'OK'"}],
                 api_base=self.base_url,
-                api_key=self.api_key if self.api_key != "not-needed" else None,
+                api_key=self.api_key,
                 max_tokens=5,
+                timeout=10,
             )
             return {
                 "status": "connected",
@@ -111,7 +126,7 @@ class LLMService:
                 "error": str(e),
                 "provider": self.provider,
                 "model": self.model,
-                "base_url": self.base_url,
             }
+
 
 llm_service = LLMService()

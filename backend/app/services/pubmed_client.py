@@ -1,6 +1,9 @@
+from typing import Any, Dict, List
+
 import httpx
-from typing import Dict, List, Any
+
 from app.core.config import settings
+
 
 class PubMedClient:
     BASE_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
@@ -10,17 +13,16 @@ class PubMedClient:
         Search PubMed for a query and return PMIDs (if enabled).
         Returns empty list if PubMed is disabled.
         """
-        if not settings.ENABLE_PUBMED:
+        if not settings.ENABLE_EXTERNAL_NETWORK or not settings.ENABLE_PUBMED:
             return []
 
-        import os
         params = {
             "db": "pubmed",
             "term": query,
             "retmode": "json",
             "retmax": retmax,
             "tool": "annapurna-ai",
-            "email": os.getenv("PUBMED_EMAIL", "annapurna-ai@example.com") # Use real email in prod
+            "email": settings.PUBMED_EMAIL,
         }
         async with httpx.AsyncClient() as client:
             try:
@@ -28,8 +30,7 @@ class PubMedClient:
                 response.raise_for_status()
                 data = response.json()
                 return data.get("esearchresult", {}).get("idlist", [])
-            except Exception as e:
-                print(f"PubMed Search Error: {e}")
+            except Exception:
                 return []
 
     async def fetch_details(self, pmids: List[str]) -> List[Dict[str, Any]]:
@@ -37,7 +38,7 @@ class PubMedClient:
         Fetch summary details for a list of PMIDs.
         Returns empty list if PubMed is disabled.
         """
-        if not settings.ENABLE_PUBMED:
+        if not settings.ENABLE_EXTERNAL_NETWORK or not settings.ENABLE_PUBMED:
             return []
 
         if not pmids:
@@ -68,8 +69,8 @@ class PubMedClient:
                             "link": f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/"
                         })
                 return summaries
-            except Exception as e:
-                print(f"PubMed Fetch Error: {e}")
+            except Exception:
                 return []
+
 
 pubmed_client = PubMedClient()

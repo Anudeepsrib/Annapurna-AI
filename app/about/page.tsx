@@ -12,7 +12,7 @@ export default function AboutPage() {
                     <div className="text-center space-y-4">
                         <h1 className="font-serif text-4xl font-bold">About Annapurna</h1>
                         <p className="text-xl text-muted-foreground font-serif italic">
-                            "Food is medicine, when eaten with mindfulness."
+                            Food planning can support everyday wellness when it stays practical and personal.
                         </p>
                     </div>
 

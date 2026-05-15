@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ApiClient, DayPlan } from "@/lib/api";
+import { ApiClient, ApiError } from "@/lib/api";
 import { toast } from "sonner";
 
 export function useGetPlan() {
@@ -21,8 +21,10 @@ export function useGeneratePlan() {
             queryClient.invalidateQueries({ queryKey: ["groceryList"] });
         },
         onError: (error) => {
-            console.error(error);
-            toast.error("Failed to generate plan. Please try again.");
+            const message = error instanceof ApiError
+                ? error.message
+                : "Failed to generate plan. Please try again.";
+            toast.error(message);
         },
     });
 }

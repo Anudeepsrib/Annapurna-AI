@@ -4,18 +4,25 @@ import { useEffect, useState } from "react"
 import { ApiClient, EvidenceResponse } from "@/lib/api"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { AlertCircle, CheckCircle, BookOpen } from "lucide-react"
+import { AlertCircle, BookOpen } from "lucide-react"
 
 export function EvidencePanel({ topic = "protein" }: { topic?: string }) {
     const [data, setData] = useState<EvidenceResponse | null>(null)
     const [loading, setLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true)
-            const result = await ApiClient.getEvidence(topic)
-            setData(result)
-            setLoading(false)
+            try {
+                const result = await ApiClient.getEvidence(topic)
+                setData(result)
+                setError(null)
+            } catch {
+                setError("Evidence service is unavailable.")
+            } finally {
+                setLoading(false)
+            }
         }
         fetchData()
     }, [topic])
@@ -24,7 +31,18 @@ export function EvidencePanel({ topic = "protein" }: { topic?: string }) {
         return <div className="p-4 text-center text-muted-foreground text-sm animate-pulse">Consulting Annapurna Intelligence...</div>
     }
 
-    if (!data) return null;
+    if (error) {
+        return (
+            <Card className="border-amber-200 bg-amber-50">
+                <CardContent className="flex gap-2 p-4 text-sm text-amber-800">
+                    <AlertCircle className="h-4 w-4 shrink-0" />
+                    <p>{error}</p>
+                </CardContent>
+            </Card>
+        )
+    }
+
+    if (!data) return null
 
     return (
         <Card className="border-primary/10 bg-primary/5">
@@ -53,7 +71,7 @@ export function EvidencePanel({ topic = "protein" }: { topic?: string }) {
                     ))}
                     {data.claims.length === 0 && (
                         <div className="text-sm text-muted-foreground italic">
-                            No specific guidelines found for "{topic}". Falling back to general wellness principles.
+                            No specific guidelines found for {topic}. Falling back to general wellness principles.
                         </div>
                     )}
                 </div>

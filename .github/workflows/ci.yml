@@ -1,38 +1,73 @@
-name: Backend CI
+name: CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
-  test:
+  backend:
+    name: Backend
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./backend
+        working-directory: backend
 
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.11"
-        
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        
-    - name: Lint with Ruff
-      run: |
-        # Stop the build if there are Python syntax errors or undefined names
-        ruff check . --select E9,F63,F7,F82 --show-source
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        ruff check . --exit-zero --statistics
-        
-    - name: Test with pytest
-      run: |
-        pytest
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Compile backend
+        run: python -m compileall app
+
+      - name: Ruff
+        run: ruff check .
+
+      - name: Pytest
+        run: pytest
+
+      - name: pip-audit
+        run: |
+          python -m pip install pip-audit
+          pip-audit -r requirements.txt
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: npm audit high and critical
+        run: npm audit --audit-level=high

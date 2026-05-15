@@ -1,19 +1,33 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.api.settings import router as settings_router
+from app.core.config import settings
+from app.core.database import get_session
+from app.core.safety import WELLNESS_DISCLAIMER
+from app.models.schemas import EvidenceResponse, PlanRequest
 from app.services.evidence_service import evidence_service
 from app.services.orchestrator import orchestrator
-from app.services.usda_client import usda_client
-from app.models.schemas import EvidenceResponse, PlanRequest
-from app.core.database import get_session
 from app.services.plan_service import PlanService
-from app.api.settings import router as settings_router
+from app.services.usda_client import usda_client
 
 router = APIRouter()
 
 # Include settings routes
 router.include_router(settings_router, prefix="/settings")
 
+
+@router.get("/health")
+async def api_health_check():
+    return {
+        "status": "ok",
+        "mode": settings.APP_ENV,
+        "external_network_enabled": settings.ENABLE_EXTERNAL_NETWORK,
+    }
+
+
 # --- Plan Generation Routes ---
+
 
 @router.get("/evidence/{topic}", response_model=EvidenceResponse)
 async def get_evidence(topic: str):
@@ -23,6 +37,7 @@ async def get_evidence(topic: str):
     """
     return await orchestrator.get_evidence(topic)
 
+
 @router.get("/mcp/ifct/search")
 async def search_ifct(query: str):
     """
@@ -30,6 +45,7 @@ async def search_ifct(query: str):
     """
     results = evidence_service.get_ifct_food(query)
     return {"results": results}
+
 
 @router.get("/mcp/usda/search")
 async def search_usda(query: str):
@@ -39,11 +55,11 @@ async def search_usda(query: str):
     results = await usda_client.search_foods(query)
     return results
 
+
 @router.post("/generate-plan")
 async def generate_plan(
     plan_request: PlanRequest,
-    request: Request,
-    session: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(get_session),
 ):
     """
     Generate a weekly meal plan using LLM + DB Persistence.
@@ -52,12 +68,20 @@ async def generate_plan(
     # Single-user local mode - use static local user
     user_id = "local-user"
     service = PlanService(session)
-    plan = await service.generate_plan(plan_request, user_id)
-    return {"status": "success", "message": "Plan generated via Local LLM", "plan": plan}
+    result = await service.generate_plan(plan_request, user_id)
+    return {
+        "status": "success",
+        "message": "Plan generated and validated for general wellness use",
+        "plan": result["plan"],
+        "source_status": result["source_status"],
+        "disclaimer": result.get("disclaimer", WELLNESS_DISCLAIMER),
+        "safety_notes": result.get("safety_notes", []),
+    }
+
 
 @router.get("/plan")
 async def get_plan(
-    session: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(get_session),
 ):
     """
     Retrieve the current meal plan for the user.
@@ -71,9 +95,10 @@ async def get_plan(
 
     return plan
 
+
 @router.get("/grocery-list")
 async def get_grocery_list(
-    session: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(get_session),
 ):
     """
     Generate grocery list from the latest plan.

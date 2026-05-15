@@ -1,34 +1,66 @@
 [
-    {
-        "id": "IFCT-01",
-        "name": "Rice, raw, milled",
-        "source": "IFCT",
-        "nutrients": {
-            "energy_kcal": 356.0,
-            "protein_g": 7.9,
-            "carbs_g": 78.2,
-            "fat_g": 0.5,
-            "fiber_g": 2.8,
-            "micronutrients": {
-                "iron_mg": 0.6,
-                "calcium_mg": 7.5
-            }
-        }
-    },
-    {
-        "id": "IFCT-02",
-        "name": "Lentil (Masoor dal)",
-        "source": "IFCT",
-        "nutrients": {
-            "energy_kcal": 343.0,
-            "protein_g": 25.0,
-            "carbs_g": 59.0,
-            "fat_g": 1.0,
-            "fiber_g": 11.0,
-            "micronutrients": {
-                "iron_mg": 6.5,
-                "calcium_mg": 35.0
-            }
-        }
+  {
+    "id": "IFCT-2017-RICE-01",
+    "name": "Rice, raw, milled",
+    "source": "IFCT",
+    "nutrients": {
+      "energy_kcal": 356.0,
+      "protein_g": 7.9,
+      "carbs_g": 78.2,
+      "fat_g": 0.5,
+      "fiber_g": 2.8,
+      "micronutrients": {
+        "iron_mg": 0.6,
+        "calcium_mg": 7.5
+      }
     }
+  },
+  {
+    "id": "IFCT-2017-RICE-02",
+    "name": "Rice, polished, raw",
+    "source": "IFCT",
+    "nutrients": {
+      "energy_kcal": 345.0,
+      "protein_g": 6.8,
+      "carbs_g": 78.2,
+      "fat_g": 0.5,
+      "fiber_g": 2.8,
+      "micronutrients": {
+        "iron_mg": 0.7,
+        "calcium_mg": 10.0
+      }
+    }
+  },
+  {
+    "id": "IFCT-2017-MOONG-01",
+    "name": "Moong dal, split, without skin",
+    "source": "IFCT",
+    "nutrients": {
+      "energy_kcal": 348.0,
+      "protein_g": 24.5,
+      "carbs_g": 59.9,
+      "fat_g": 1.2,
+      "fiber_g": 8.2,
+      "micronutrients": {
+        "iron_mg": 3.9,
+        "calcium_mg": 75.0
+      }
+    }
+  },
+  {
+    "id": "IFCT-2017-MASOOR-01",
+    "name": "Lentil, masoor dal",
+    "source": "IFCT",
+    "nutrients": {
+      "energy_kcal": 343.0,
+      "protein_g": 25.0,
+      "carbs_g": 59.0,
+      "fat_g": 1.0,
+      "fiber_g": 11.0,
+      "micronutrients": {
+        "iron_mg": 6.5,
+        "calcium_mg": 35.0
+      }
+    }
+  }
 ]

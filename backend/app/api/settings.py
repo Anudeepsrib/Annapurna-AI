@@ -1,57 +1,43 @@
-"""
-Settings API routes for local-first configuration.
-No authentication required - single user local mode.
-"""
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import Optional
+
 from app.core.config import settings
 from app.services.llm_service import llm_service
 
 router = APIRouter()
 
 
-class LLMSettings(BaseModel):
-    provider: str
-    base_url: str
-    model: str
-    api_key: Optional[str] = "not-needed"
-
-
-class ExternalAPISettings(BaseModel):
-    enable_usda: bool
-    usda_api_key: Optional[str] = None
-    enable_pubmed: bool
-
-
 class SettingsResponse(BaseModel):
+    app_env: str
+    debug: bool
     llm_provider: str
     llm_base_url: str
     llm_model: str
     database_url: str
+    enable_external_network: bool
     enable_usda: bool
     enable_pubmed: bool
 
-    class Config:
-        from_attributes = True
 
-
-@router.get("/settings", response_model=SettingsResponse)
+@router.get("/", response_model=SettingsResponse)
 async def get_settings():
     """
     Get current settings (safe fields only - no sensitive data).
     """
     return SettingsResponse(
+        app_env=settings.APP_ENV,
+        debug=settings.DEBUG,
         llm_provider=settings.LLM_PROVIDER,
         llm_base_url=settings.LLM_BASE_URL,
         llm_model=settings.LLM_MODEL,
         database_url=settings.DATABASE_URL,
+        enable_external_network=settings.ENABLE_EXTERNAL_NETWORK,
         enable_usda=settings.ENABLE_USDA,
         enable_pubmed=settings.ENABLE_PUBMED,
     )
 
 
-@router.post("/settings/test-llm")
+@router.post("/test-llm")
 async def test_llm_connection():
     """
     Test the configured LLM connection.
@@ -62,7 +48,7 @@ async def test_llm_connection():
     return result
 
 
-@router.get("/settings/models")
+@router.get("/models")
 async def list_available_models():
     """
     List available models from Ollama (if accessible).
@@ -73,7 +59,7 @@ async def list_available_models():
 
         if settings.LLM_PROVIDER == "ollama":
             async with httpx.AsyncClient() as client:
-                response = await client.get(f"{settings.LLM_BASE_URL}/api/tags")
+                response = await client.get(f"{settings.LLM_BASE_URL}/api/tags", timeout=10)
                 if response.status_code == 200:
                     data = response.json()
                     models = [m["name"] for m in data.get("models", [])]
@@ -91,9 +77,9 @@ async def list_available_models():
                 "models": [settings.LLM_MODEL],
                 "note": "Model listing only supported for Ollama",
             }
-    except Exception as e:
+    except Exception:
         return {
             "provider": settings.LLM_PROVIDER,
             "models": [],
-            "error": str(e),
+            "error": "Could not reach local model endpoint. Is Ollama running?",
         }

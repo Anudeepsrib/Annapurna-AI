@@ -1,6 +1,7 @@
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import type { NutritionEstimate } from "@/lib/api"
 import { Button } from "@/components/ui/button"
-import { Clock, Info, ChefHat, Flame } from "lucide-react"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { ChefHat, Clock, Flame, Info } from "lucide-react"
 
 interface MealCardProps {
     type: "Breakfast" | "Lunch" | "Dinner"
@@ -8,14 +9,27 @@ interface MealCardProps {
     description: string
     time: string
     ingredients: string[]
+    nutrition?: NutritionEstimate
+    confidence?: "low" | "medium" | "high"
+    disclaimer?: string
 }
 
-export function MealCard({ type, title, description, time, ingredients }: MealCardProps) {
+export function MealCard({
+    type,
+    title,
+    description,
+    time,
+    ingredients,
+    nutrition,
+    confidence,
+    disclaimer,
+}: MealCardProps) {
+    const nutritionLine = formatNutrition(nutrition)
+
     return (
         <Card className="h-full flex flex-col hover:shadow-lg transition-all duration-300 border bg-white overflow-hidden">
-            {/* Card Header */}
             <div className="px-4 py-3 bg-muted/30 border-b border-border">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2.5">
                         <div className="bg-primary/10 p-2 rounded-lg">
                             <ChefHat className="h-4 w-4 text-primary" />
@@ -29,30 +43,34 @@ export function MealCard({ type, title, description, time, ingredients }: MealCa
                 </div>
             </div>
 
-            {/* Card Content */}
             <CardContent className="flex-1 p-4 space-y-3">
-                {/* Title */}
                 <div className="space-y-1.5">
                     <h3 className="font-serif text-lg font-bold leading-tight text-foreground break-words">
                         {title}
                     </h3>
                 </div>
 
-                {/* Description */}
                 <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
                     {description}
                 </p>
 
-                {/* Ingredients Section */}
+                {nutritionLine && (
+                    <p className="text-xs text-muted-foreground bg-muted/40 rounded-md px-3 py-2">
+                        {nutritionLine}
+                    </p>
+                )}
+
                 <div className="pt-2 space-y-2">
                     <div className="flex items-center gap-2">
                         <Flame className="h-3 w-3 text-primary" />
-                        <span className="text-[10px] text-foreground/70 uppercase tracking-wider font-bold">Key Ingredients</span>
+                        <span className="text-[10px] text-foreground/70 uppercase tracking-wider font-bold">
+                            Key Ingredients
+                        </span>
                     </div>
                     <div className="flex flex-wrap gap-1.5">
-                        {ingredients.slice(0, 5).map((ing, i) => (
+                        {ingredients.slice(0, 5).map((ing) => (
                             <span
-                                key={i}
+                                key={ing}
                                 className="text-[11px] px-2.5 py-1 bg-secondary/20 text-foreground font-semibold rounded-full border border-secondary/40 hover:border-secondary/60 hover:shadow-md transition-all duration-300"
                             >
                                 {ing}
@@ -68,17 +86,37 @@ export function MealCard({ type, title, description, time, ingredients }: MealCa
                 </div>
             </CardContent>
 
-            {/* Card Footer */}
             <CardFooter className="p-4 pt-0 mt-auto">
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className="w-full h-11 group/btn hover:bg-gradient-to-r hover:from-primary/10 hover:to-secondary/10 border border-border/50 hover:border-primary/50 transition-all duration-300"
-                >
-                    <span className="font-semibold">View Recipe</span>
-                    <Info className="ml-2 h-3.5 w-3.5 group-hover/btn:translate-x-1 group-hover/btn:scale-110 transition-all duration-300" />
-                </Button>
+                <div className="w-full space-y-2">
+                    {disclaimer && (
+                        <p className="text-[11px] leading-snug text-muted-foreground">
+                            {disclaimer}
+                        </p>
+                    )}
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full h-11 group/btn hover:bg-gradient-to-r hover:from-primary/10 hover:to-secondary/10 border border-border/50 hover:border-primary/50 transition-all duration-300"
+                    >
+                        <span className="font-semibold">
+                            {confidence ? `${confidence} confidence` : "View Details"}
+                        </span>
+                        <Info className="ml-2 h-3.5 w-3.5 group-hover/btn:translate-x-1 group-hover/btn:scale-110 transition-all duration-300" />
+                    </Button>
+                </div>
             </CardFooter>
         </Card>
     )
+}
+
+function formatNutrition(nutrition?: NutritionEstimate) {
+    if (!nutrition) return null
+
+    const entries = [
+        nutrition.calories_kcal ? `${Math.round(nutrition.calories_kcal)} kcal` : null,
+        nutrition.protein_g ? `${Math.round(nutrition.protein_g)}g protein` : null,
+        nutrition.fiber_g ? `${Math.round(nutrition.fiber_g)}g fiber` : null,
+    ].filter(Boolean)
+
+    return entries.length ? `Approx. ${entries.join(" | ")}` : "Nutrition estimate unavailable"
 }

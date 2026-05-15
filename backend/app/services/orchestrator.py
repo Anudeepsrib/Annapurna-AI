@@ -1,20 +1,14 @@
+from app.core.config import settings
+from app.core.safety import CLINICIAN_GUIDANCE, WELLNESS_DISCLAIMER, detect_safety_concerns
+from app.models.schemas import EvidenceClaim, EvidenceResponse
 from app.services.evidence_service import evidence_service
 from app.services.pubmed_client import pubmed_client
-from app.models.schemas import EvidenceClaim, EvidenceResponse
+
 
 class EvidenceOrchestrator:
-    # Basic Safety Blocklist
-    BLOCKED_KEYWORDS = [
-        "cure", "treat", "prescription", "diagnostic", "diabetes", 
-        "cancer", "pregnancy", "ckd", "kidney disease", "drug"
-    ]
-
     def _is_safe_query(self, query: str) -> bool:
         """Check for blocked medical/disease keywords."""
-        q = query.lower()
-        if any(keyword in q for keyword in self.BLOCKED_KEYWORDS):
-            return False
-        return True
+        return not detect_safety_concerns(query)
 
     async def get_evidence(self, topic: str) -> EvidenceResponse:
         """
@@ -28,7 +22,7 @@ class EvidenceOrchestrator:
             return EvidenceResponse(
                 topic=topic,
                 claims=[],
-                disclaimer="Safety Block: Query blocked. This system provides wellness info only, not medical advice for diseases."
+                disclaimer=f"{WELLNESS_DISCLAIMER} {CLINICIAN_GUIDANCE}",
             )
 
         # 2. Curated Check
@@ -43,29 +37,41 @@ class EvidenceOrchestrator:
         # Note: In a full MCP implementation, we'd define this as a "Tool Call"
         pmids = await pubmed_client.search(topic, retmax=3)
         summaries = await pubmed_client.fetch_details(pmids)
-        
+
+        if not summaries:
+            disclaimer = "Curated local evidence was not found for this topic."
+            if not settings.ENABLE_EXTERNAL_NETWORK or not settings.ENABLE_PUBMED:
+                disclaimer += " PubMed lookup is disabled by default for local-first privacy."
+            return EvidenceResponse(topic=topic, claims=[], disclaimer=disclaimer)
+
         # Convert PubMed summaries to "Claims" structure for consistency
-        # In reality, PubMed results aren't verified claims, so we label them "research-abstract"
+        # PubMed results are abstracts, not verified app claims.
         research_claims = []
         for s in summaries:
-            research_claims.append(EvidenceClaim(
-                id=f"PUBMED-{s.get('pmid')}",
-                topic=topic,
-                claim=f"Research Abstract: {s.get('title')}",
-                evidence_type="systematic-review", # approximating for MVP
-                population="Unknown", 
-                limitations="Unverified PubMed Abstract",
-                citation={
-                    "source": s.get("source", "PubMed"),
-                    "year": 2024, # Mock year if parsing fails
-                    "identifier": f"PMID:{s.get('pmid')}"
-                }
-            ))
+            research_claims.append(
+                EvidenceClaim(
+                    id=f"PUBMED-{s.get('pmid')}",
+                    topic=topic,
+                    claim=f"Research abstract title: {s.get('title')}",
+                    evidence_type="research-abstract",
+                    population="Unknown",
+                    limitations="Unverified PubMed abstract. Do not treat as clinical guidance.",
+                    citation={
+                        "source": s.get("source", "PubMed"),
+                        "year": 2024,
+                        "identifier": f"PMID:{s.get('pmid')}",
+                    },
+                )
+            )
 
         return EvidenceResponse(
             topic=topic,
             claims=research_claims,
-            disclaimer="NOTICE: Required verified evidence not found. Showing latest research abstracts. Verify with a professional."
+            disclaimer=(
+                "NOTICE: Curated local evidence was not found. Showing PubMed abstracts only; "
+                "verify with a qualified professional."
+            ),
         )
+
 
 orchestrator = EvidenceOrchestrator()

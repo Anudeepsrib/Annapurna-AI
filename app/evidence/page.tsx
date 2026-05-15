@@ -12,8 +12,8 @@ export default function EvidencePage() {
                     <div className="mb-8 text-center space-y-2">
                         <h1 className="font-serif text-3xl font-bold">The Science Behind the Menu</h1>
                         <p className="text-muted-foreground">
-                            Our recommendations are grounded in nutritional science and traditional wisdom.
-                            We believe in transparency, not "magic" algorithms.
+                            Annapurna shows general wellness references where local curated data exists.
+                            Optional online literature search stays disabled unless you enable it.
                         </p>
                     </div>
 
@@ -31,7 +31,7 @@ export default function EvidencePage() {
                                     <AccordionContent className="text-muted-foreground leading-relaxed">
                                         Vegetarian diets often need careful pairing to achieve a complete amino acid profile.
                                         Combining cereals (rice, wheat) with pulses (dal, beans) creates a complete protein.
-                                        This is why our menu always pairs Rice with Dal (Pappu) or Khichdi.
+                                        Annapurna favors familiar cereal-and-pulse pairings such as rice with dal.
                                         <br />
                                         <span className="text-xs mt-2 block font-semibold text-foreground">Source: National Institute of Nutrition (NIN) - Dietary Guidelines for Indians</span>
                                     </AccordionContent>
@@ -39,24 +39,22 @@ export default function EvidencePage() {
                                 <AccordionItem value="item-2">
                                     <AccordionTrigger className="font-serif text-lg text-primary">Fermented Foods (Probiotics)</AccordionTrigger>
                                     <AccordionContent className="text-muted-foreground leading-relaxed">
-                                        South Indian breakfasts like Idli and Dosa utilize natural fermentation, which enhances
-                                        bioavailability of nutrients (especially B vitamins) and promotes gut health.
+                                        South Indian breakfasts like idli and dosa use natural fermentation and familiar pantry staples.
                                         <br />
-                                        <span className="text-xs mt-2 block font-semibold text-foreground">Source: Journal of Ethnic Foods</span>
+                                        <span className="text-xs mt-2 block font-semibold text-foreground">Source status: general culinary context</span>
                                     </AccordionContent>
                                 </AccordionItem>
                                 <AccordionItem value="item-3">
                                     <AccordionTrigger className="font-serif text-lg text-primary">Iron Absorption</AccordionTrigger>
                                     <AccordionContent className="text-muted-foreground leading-relaxed">
-                                        We pair iron-rich greens (Palakura, Thotakura) with Vitamin C sources (Tomato, Lemon, Tamarind)
-                                        to maximize non-heme iron absorption, crucial for vegetarian diets.
+                                        Greens, tomato, lemon, and tamarind can be useful variety in vegetarian meals.
+                                        This is general food-planning context, not a treatment recommendation.
                                     </AccordionContent>
                                 </AccordionItem>
                                 <AccordionItem value="item-4">
                                     <AccordionTrigger className="font-serif text-lg text-primary">Seasonal Eating (Rutucharya)</AccordionTrigger>
                                     <AccordionContent className="text-muted-foreground leading-relaxed">
-                                        Following Ayurvedic principles of Rutucharya, we prioritize local, seasonal vegetables
-                                        (Bottle Gourd in summer, Root veggies in winter) to align with natural digestion cycles.
+                                        Seasonal vegetables help keep the grocery list practical and culturally familiar.
                                     </AccordionContent>
                                 </AccordionItem>
                             </Accordion>

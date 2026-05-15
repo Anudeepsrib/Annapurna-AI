@@ -26,7 +26,7 @@ export default function Home() {
             <p className="max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8 font-sans">
               Authentic meal planning for Andhra Telugu households.
               Balanced nutrition, zero waste, and culturally respectful recipes
-              that feel like your grandmother's kitchen.
+              that feel like home cooking.
             </p>
             <div className="space-x-4 pt-4">
               <Link href="/profile">
@@ -82,9 +82,9 @@ export default function Home() {
                 <div className="p-3 bg-primary/10 rounded-full">
                   <BookOpen className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="font-serif text-xl font-bold">Evidence Based</h3>
+                <h3 className="font-serif text-xl font-bold">Local Evidence</h3>
                 <p className="text-sm text-muted-foreground">
-                  Nutrition advice grounded in science, not pseudo-science.
+                  Curated reference notes support general wellness planning without clinical claims.
                 </p>
               </CardContent>
             </Card>

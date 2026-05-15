@@ -12,18 +12,10 @@ import { toast } from "sonner"
 import { Loader2, Check, AlertCircle, Database, Server, Globe, Shield } from "lucide-react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-
-interface Settings {
-  llm_provider: string
-  llm_base_url: string
-  llm_model: string
-  database_url: string
-  enable_usda: boolean
-  enable_pubmed: boolean
-}
+import { ApiClient, ApiError, type SettingsResponse } from "@/lib/api"
 
 export default function SettingsPage() {
-  const [settings, setSettings] = useState<Settings | null>(null)
+  const [settings, setSettings] = useState<SettingsResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [testingConnection, setTestingConnection] = useState(false)
   const [connectionStatus, setConnectionStatus] = useState<"idle" | "success" | "error">("idle")
@@ -36,14 +28,9 @@ export default function SettingsPage() {
 
   async function fetchSettings() {
     try {
-      const response = await fetch("/api/python/settings")
-      if (response.ok) {
-        const data = await response.json()
-        setSettings(data)
-      } else {
-        toast.error("Failed to load settings")
-      }
-    } catch (error) {
+      const data = await ApiClient.getSettings()
+      setSettings(data)
+    } catch {
       toast.error("Error connecting to backend")
     } finally {
       setLoading(false)
@@ -54,18 +41,13 @@ export default function SettingsPage() {
     setTestingConnection(true)
     setConnectionStatus("idle")
     try {
-      const response = await fetch("/api/python/settings/test-llm", { method: "POST" })
-      if (response.ok) {
-        setConnectionStatus("success")
-        toast.success("LLM connection successful!")
-      } else {
-        const error = await response.json()
-        setConnectionStatus("error")
-        toast.error(`Connection failed: ${error.detail?.error || "Unknown error"}`)
-      }
+      await ApiClient.testLLM()
+      setConnectionStatus("success")
+      toast.success("LLM connection successful!")
     } catch (error) {
       setConnectionStatus("error")
-      toast.error("Could not connect to LLM endpoint")
+      const message = error instanceof ApiError ? error.message : "Could not connect to LLM endpoint"
+      toast.error(message)
     } finally {
       setTestingConnection(false)
     }
@@ -74,19 +56,16 @@ export default function SettingsPage() {
   async function fetchAvailableModels() {
     setLoadingModels(true)
     try {
-      const response = await fetch("/api/python/settings/models")
-      if (response.ok) {
-        const data = await response.json()
-        setAvailableModels(data.models || [])
-        if (data.error) {
-          toast.warning(data.error)
-        } else if (data.models?.length > 0) {
-          toast.success(`Found ${data.models.length} models`)
-        } else {
-          toast.info("No models found. Is Ollama running?")
-        }
+      const data = await ApiClient.listModels()
+      setAvailableModels(data.models || [])
+      if (data.error) {
+        toast.warning(data.error)
+      } else if (data.models?.length > 0) {
+        toast.success(`Found ${data.models.length} models`)
+      } else {
+        toast.info("No models found. Is Ollama running?")
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to fetch models")
     } finally {
       setLoadingModels(false)
@@ -117,7 +96,7 @@ export default function SettingsPage() {
               <div>
                 <h3 className="font-medium text-green-900">Your data stays on your computer</h3>
                 <p className="text-sm text-green-700 mt-1">
-                  Annapurna-AI runs entirely on your local machine. Your meal plans, preferences, and health information are stored in a file on your disk and processed by a model running on your hardware. Nothing is sent to the cloud.
+                  Annapurna-AI stores meal plans and preferences in local SQLite by default. USDA and PubMed lookups are optional, disabled by default, and require explicit environment settings.
                 </p>
               </div>
             </div>
@@ -245,9 +224,23 @@ export default function SettingsPage() {
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
+                  <Label htmlFor="external-network">External Network Access</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Master switch required before optional online fetchers can run.
+                  </p>
+                </div>
+                <Switch
+                  id="external-network"
+                  checked={settings?.enable_external_network}
+                  disabled
+                />
+              </div>
+              <Separator />
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
                   <Label htmlFor="usda">USDA Nutrition Lookups</Label>
                   <p className="text-xs text-muted-foreground">
-                    Requires USDA API key. Enriches meal plans with detailed nutrition data.
+                    Requires external network access and a USDA API key.
                   </p>
                 </div>
                 <Switch
@@ -261,7 +254,7 @@ export default function SettingsPage() {
                 <div className="space-y-0.5">
                   <Label htmlFor="pubmed">PubMed Evidence Search</Label>
                   <p className="text-xs text-muted-foreground">
-                    Searches medical literature for nutrition evidence.
+                    Searches PubMed abstracts when external network access is explicitly enabled.
                   </p>
                 </div>
                 <Switch
@@ -289,12 +282,12 @@ export default function SettingsPage() {
                 <li>
                   <strong>Install Ollama:</strong>{" "}
                   <a
-                    href="https://ollama.ai"
+                    href="https://ollama.com"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-primary underline"
                   >
-                    Download from ollama.ai
+                    Download from ollama.com
                   </a>
                 </li>
                 <li>
@@ -305,7 +298,7 @@ export default function SettingsPage() {
                   <strong>Start Ollama:</strong> It runs automatically in the background
                 </li>
                 <li>
-                  <strong>Test the connection:</strong> Use the "Test Connection" button above
+                  <strong>Test the connection:</strong> Use the Test Connection button above
                 </li>
               </ol>
             </CardContent>

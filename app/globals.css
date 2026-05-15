@@ -75,8 +75,8 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  --font-sans: var(--font-outfit), sans-serif;
-  --font-serif: var(--font-crimson), serif;
+  --font-sans: "Segoe UI", "Noto Sans", Arial, sans-serif;
+  --font-serif: Georgia, "Times New Roman", serif;
 
   --radius-xl: 1rem;
   --radius-lg: 0.75rem;

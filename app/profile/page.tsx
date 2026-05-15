@@ -1,41 +1,54 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowRight } from "lucide-react"
+import { ApiClient, ApiError } from "@/lib/api"
+import { ArrowRight, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
 export default function ProfilePage() {
+    const router = useRouter()
     const [householdSize, setHouseholdSize] = useState("2")
     const [spiceLevel, setSpiceLevel] = useState("medium")
-    const [dietary] = useState("vegetarian")
+    const [dietary, setDietary] = useState("vegetarian")
+    const [allergies, setAllergies] = useState("")
+    const [submitting, setSubmitting] = useState(false)
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+        setSubmitting(true)
 
-        // Local mode - no auth token needed
-        const promise = fetch("/api/python/generate-plan", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ householdSize, spiceLevel, dietary }),
-        })
+        try {
+            const result = await ApiClient.generatePlan({
+                householdSize,
+                spiceLevel,
+                dietary,
+                allergies: allergies
+                    .split(",")
+                    .map((item) => item.trim())
+                    .filter(Boolean),
+            })
 
-        toast.promise(promise, {
-            loading: 'Generating your authentic meal plan...',
-            success: (data) => {
-                // For MVP, navigate to plan directly
-                window.location.href = "/plan"
-                return `Plan generated successfully!`
-            },
-            error: 'Failed to generate plan. Is the backend running?',
-        });
+            if (result.source_status === "safety_guardrail") {
+                toast.warning("General wellness guidance created. Review the safety notes on your plan.")
+            } else {
+                toast.success("Meal plan generated successfully.")
+            }
+            router.push("/plan")
+        } catch (error) {
+            const message = error instanceof ApiError
+                ? error.message
+                : "Failed to generate plan. Is the backend running?"
+            toast.error(message)
+        } finally {
+            setSubmitting(false)
+        }
     }
 
     return (
@@ -51,82 +64,76 @@ export default function ProfilePage() {
                     </div>
 
                     <Card>
-                        <CardHeader>
-                            <CardTitle>Household & Diet</CardTitle>
-                            <CardDescription>
-                                Customize portion sizes and restrictions.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-6">
-                            <div className="space-y-2">
-                                <Label htmlFor="size">Household Size (People)</Label>
-                                <Select value={householdSize} onValueChange={setHouseholdSize}>
-                                    <SelectTrigger id="size">
-                                        <SelectValue placeholder="Select size" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="1">1 Person</SelectItem>
-                                        <SelectItem value="2">2 People</SelectItem>
-                                        <SelectItem value="3">3 People</SelectItem>
-                                        <SelectItem value="4">4 People</SelectItem>
-                                        <SelectItem value="5">5+ People</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="expertise">Cooking Expertise</Label>
-                                <Select defaultValue="intermediate">
-                                    <SelectTrigger id="expertise">
-                                        <SelectValue placeholder="Select level" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="beginner">Beginner (Quick & Easy)</SelectItem>
-                                        <SelectItem value="intermediate">Home Cook (Standard)</SelectItem>
-                                        <SelectItem value="expert">Expert (Traditional)</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label>Spice Tolerance</Label>
-                                <div className="grid grid-cols-3 gap-4">
-                                    <Button
-                                        type="button"
-                                        variant={spiceLevel === "mild" ? "default" : "outline"}
-                                        className="flex flex-col h-20 gap-1"
-                                        onClick={() => setSpiceLevel("mild")}
-                                    >
-                                        <span className="text-lg">🌶️</span>
-                                        <span>Mild</span>
-                                    </Button>
-                                    <Button
-                                        type="button"
-                                        variant={spiceLevel === "medium" ? "default" : "outline"}
-                                        className="flex flex-col h-20 gap-1"
-                                        onClick={() => setSpiceLevel("medium")}
-                                    >
-                                        <span className="text-lg">🌶️🌶️</span>
-                                        <span>Medium</span>
-                                    </Button>
-                                    <Button
-                                        type="button"
-                                        variant={spiceLevel === "spicy" ? "default" : "outline"}
-                                        className="flex flex-col h-20 gap-1"
-                                        onClick={() => setSpiceLevel("spicy")}
-                                    >
-                                        <span className="text-lg">🌶️🌶️🌶️</span>
-                                        <span>Spicy</span>
-                                    </Button>
+                        <form onSubmit={handleSubmit}>
+                            <CardHeader>
+                                <CardTitle>Household & Diet</CardTitle>
+                                <CardDescription>
+                                    Customize portion sizes and restrictions.
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                <div className="space-y-2">
+                                    <Label htmlFor="size">Household Size (People)</Label>
+                                    <Select value={householdSize} onValueChange={setHouseholdSize}>
+                                        <SelectTrigger id="size">
+                                            <SelectValue placeholder="Select size" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="1">1 Person</SelectItem>
+                                            <SelectItem value="2">2 People</SelectItem>
+                                            <SelectItem value="3">3 People</SelectItem>
+                                            <SelectItem value="4">4 People</SelectItem>
+                                            <SelectItem value="5">5+ People</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </div>
-                            </div>
-                        </CardContent>
-                        <CardFooter>
-                            <Button className="w-full h-12 text-lg" onClick={handleSubmit}>
-                                Generate Weekly Plan
-                                <ArrowRight className="ml-2 h-4 w-4" />
-                            </Button>
-                        </CardFooter>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="dietary">Dietary Notes</Label>
+                                    <textarea
+                                        id="dietary"
+                                        value={dietary}
+                                        onChange={(event) => setDietary(event.target.value)}
+                                        className="min-h-24 w-full rounded-md border border-input bg-white px-3 py-2 text-sm shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="allergies">Allergies or Avoid List</Label>
+                                    <input
+                                        id="allergies"
+                                        value={allergies}
+                                        onChange={(event) => setAllergies(event.target.value)}
+                                        className="h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                        placeholder="peanut, sesame"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label>Spice Tolerance</Label>
+                                    <div className="grid grid-cols-3 gap-4">
+                                        {(["mild", "medium", "spicy"] as const).map((level) => (
+                                            <Button
+                                                key={level}
+                                                type="button"
+                                                variant={spiceLevel === level ? "default" : "outline"}
+                                                className="flex flex-col h-20 gap-1 capitalize"
+                                                onClick={() => setSpiceLevel(level)}
+                                            >
+                                                <span>{level}</span>
+                                            </Button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </CardContent>
+                            <CardFooter>
+                                <Button className="w-full h-12 text-lg" type="submit" disabled={submitting}>
+                                    {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                    Generate Weekly Plan
+                                    <ArrowRight className="ml-2 h-4 w-4" />
+                                </Button>
+                            </CardFooter>
+                        </form>
                     </Card>
                 </div>
             </main>
