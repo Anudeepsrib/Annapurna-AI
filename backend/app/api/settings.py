@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from app.core.config import settings
+from app.core.config import is_local_llm_base_url, settings
 from app.services.llm_service import llm_service
 
 router = APIRouter()
@@ -13,6 +13,8 @@ class SettingsResponse(BaseModel):
     llm_provider: str
     llm_base_url: str
     llm_model: str
+    llm_network_mode: str
+    llm_privacy_note: str
     database_url: str
     enable_external_network: bool
     enable_usda: bool
@@ -30,6 +32,12 @@ async def get_settings():
         llm_provider=settings.LLM_PROVIDER,
         llm_base_url=settings.LLM_BASE_URL,
         llm_model=settings.LLM_MODEL,
+        llm_network_mode="local" if is_local_llm_base_url(settings.LLM_BASE_URL) else "external",
+        llm_privacy_note=(
+            "Local model endpoint; prompts stay on this machine by default."
+            if is_local_llm_base_url(settings.LLM_BASE_URL)
+            else "External model endpoint; family profile, pantry, and dietary prompts may leave this machine."
+        ),
         database_url=settings.DATABASE_URL,
         enable_external_network=settings.ENABLE_EXTERNAL_NETWORK,
         enable_usda=settings.ENABLE_USDA,

@@ -41,11 +41,79 @@ class FoodItem(BaseModel):
 # --- Plan Models ---
 
 
+TeluguAndhraConstraint = Literal[
+    "vegetarian",
+    "no_egg",
+    "andhra_telugu_style",
+    "rice_based_lunch",
+    "pappu_or_dal_daily",
+    "fermented_breakfasts_ok",
+    "mild_for_children",
+    "festival_no_onion_garlic",
+]
+
+
+class FamilyProfile(BaseModel):
+    label: str = Field(
+        default="Family member",
+        max_length=60,
+        description="Privacy-preserving role label. Avoid full legal names.",
+    )
+    ageGroup: Literal["adult", "senior", "teen", "child"] = "adult"
+    appetite: Literal["light", "regular", "hearty"] = "regular"
+    dietaryTags: list[str] = Field(default_factory=list, max_length=12)
+    privacyScope: Literal["local_device_only", "meal_planning_only"] = "local_device_only"
+
+    @field_validator("label")
+    @classmethod
+    def validate_label(cls, value: str) -> str:
+        cleaned = " ".join(value.split())[:60]
+        if not cleaned:
+            return "Family member"
+        return cleaned
+
+    @field_validator("dietaryTags")
+    @classmethod
+    def validate_dietary_tags(cls, value: list[str]) -> list[str]:
+        cleaned: list[str] = []
+        seen: set[str] = set()
+        for item in value:
+            tag = " ".join(item.split())[:80]
+            key = tag.casefold()
+            if tag and key not in seen:
+                cleaned.append(tag)
+                seen.add(key)
+        return cleaned
+
+
+class PantryItem(BaseModel):
+    name: str = Field(..., min_length=1, max_length=80)
+    quantity: str = Field(default="", max_length=40)
+    category: Literal["grains", "dals", "vegetables", "spices", "dairy", "other"] = "other"
+    expiresWithinDays: int | None = Field(default=None, ge=0, le=365)
+
+    @field_validator("name", "quantity")
+    @classmethod
+    def clean_text(cls, value: str) -> str:
+        return " ".join(value.split())
+
+
 class PlanRequest(BaseModel):
     householdSize: str = Field(default="2", max_length=16)
     spiceLevel: str = Field(default="medium", max_length=32)
     dietary: str = Field(default="vegetarian", max_length=1000)
     allergies: list[str] = Field(default_factory=list, max_length=20)
+    familyProfiles: list[FamilyProfile] = Field(default_factory=list, max_length=12)
+    pantryInventory: list[PantryItem] = Field(default_factory=list, max_length=80)
+    teluguAndhraConstraints: list[TeluguAndhraConstraint] = Field(
+        default_factory=lambda: [
+            "vegetarian",
+            "andhra_telugu_style",
+            "rice_based_lunch",
+            "pappu_or_dal_daily",
+        ],
+        max_length=12,
+    )
 
     @field_validator("householdSize")
     @classmethod
@@ -81,6 +149,22 @@ class PlanRequest(BaseModel):
     @classmethod
     def validate_allergies(cls, value: list[str]) -> list[str]:
         return [" ".join(item.split())[:80] for item in value if item and item.strip()]
+
+    @field_validator("teluguAndhraConstraints")
+    @classmethod
+    def validate_telugu_andhra_constraints(
+        cls,
+        value: list[TeluguAndhraConstraint],
+    ) -> list[TeluguAndhraConstraint]:
+        if not value:
+            return ["vegetarian", "andhra_telugu_style"]
+        cleaned: list[TeluguAndhraConstraint] = []
+        for item in value:
+            if item not in cleaned:
+                cleaned.append(item)
+        if "andhra_telugu_style" not in cleaned:
+            cleaned.append("andhra_telugu_style")
+        return cleaned
 
 
 class NutritionEstimate(BaseModel):

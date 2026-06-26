@@ -35,7 +35,47 @@ Windows activation:
 - Ollama is the default LLM provider.
 - USDA and PubMed are disabled by default.
 - `ENABLE_EXTERNAL_NETWORK=false` blocks optional fetchers.
+- `ENABLE_EXTERNAL_NETWORK=false` blocks non-local LLM endpoints.
+- Family profile inputs use role labels, age groups, appetite bands, and dietary
+  tags instead of legal names, exact ages, weights, or diagnoses.
+- Pantry inventory is stored locally with the generated plan context and used to
+  optimize grocery output.
 - Health endpoints do not return API keys, database paths, or stack traces.
+
+## Plan Request Shape
+
+```json
+{
+  "householdSize": "3",
+  "spiceLevel": "medium",
+  "dietary": "vegetarian Andhra home cooking",
+  "allergies": ["peanut"],
+  "familyProfiles": [
+    {
+      "label": "Adult cook",
+      "ageGroup": "adult",
+      "appetite": "regular",
+      "dietaryTags": ["prefers rice lunch"],
+      "privacyScope": "local_device_only"
+    }
+  ],
+  "pantryInventory": [
+    {
+      "name": "rice",
+      "quantity": "5 kg",
+      "category": "grains",
+      "expiresWithinDays": 30
+    }
+  ],
+  "teluguAndhraConstraints": [
+    "vegetarian",
+    "no_egg",
+    "andhra_telugu_style",
+    "rice_based_lunch",
+    "pappu_or_dal_daily"
+  ]
+}
+```
 
 ## Safety
 

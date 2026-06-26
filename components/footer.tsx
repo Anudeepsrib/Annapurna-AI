@@ -7,6 +7,9 @@ export function Footer() {
                     <span className="block md:inline ml-1">
                         Respecting tradition, enabling wellness.
                     </span>
+                    <span className="block text-xs">
+                        General wellness planning only; not medical advice.
+                    </span>
                 </p>
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <p> MVP v0.1 </p>

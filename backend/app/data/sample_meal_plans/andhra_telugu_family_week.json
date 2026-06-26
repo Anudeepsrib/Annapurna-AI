@@ -1,0 +1,87 @@
+{
+  "profile": {
+    "householdSize": "3",
+    "familyProfiles": [
+      {
+        "label": "Adult cook",
+        "ageGroup": "adult",
+        "appetite": "regular",
+        "dietaryTags": ["prefers rice lunch"],
+        "privacyScope": "local_device_only"
+      },
+      {
+        "label": "Senior",
+        "ageGroup": "senior",
+        "appetite": "light",
+        "dietaryTags": ["softer dinner"],
+        "privacyScope": "local_device_only"
+      },
+      {
+        "label": "Child",
+        "ageGroup": "child",
+        "appetite": "light",
+        "dietaryTags": ["mild spice"],
+        "privacyScope": "meal_planning_only"
+      }
+    ],
+    "pantryInventory": [
+      { "name": "rice", "quantity": "5 kg", "category": "grains", "expiresWithinDays": 30 },
+      { "name": "moong dal", "quantity": "1 kg", "category": "dals", "expiresWithinDays": 90 },
+      { "name": "spinach", "quantity": "1 bunch", "category": "vegetables", "expiresWithinDays": 2 },
+      { "name": "tamarind", "quantity": "small box", "category": "spices", "expiresWithinDays": 180 }
+    ],
+    "teluguAndhraConstraints": [
+      "vegetarian",
+      "no_egg",
+      "andhra_telugu_style",
+      "rice_based_lunch",
+      "pappu_or_dal_daily",
+      "mild_for_children"
+    ]
+  },
+  "plan": [
+    {
+      "day": "Monday",
+      "breakfast": "Pesarattu with ginger chutney",
+      "lunch": "Tomato pappu with rice",
+      "dinner": "Phulka with bendakaya fry"
+    },
+    {
+      "day": "Tuesday",
+      "breakfast": "Idli with sambar",
+      "lunch": "Gutti vankaya with rice",
+      "dinner": "Vegetable pulao"
+    },
+    {
+      "day": "Wednesday",
+      "breakfast": "Vegetable upma",
+      "lunch": "Dosakaya pappu with rice",
+      "dinner": "Tomato rice with curd"
+    },
+    {
+      "day": "Thursday",
+      "breakfast": "Dosa with coconut chutney",
+      "lunch": "Sambar rice",
+      "dinner": "Cabbage poriyal with rotis"
+    },
+    {
+      "day": "Friday",
+      "breakfast": "Pongal",
+      "lunch": "Palakura pappu with rice",
+      "dinner": "Lemon rice with sundal"
+    },
+    {
+      "day": "Saturday",
+      "breakfast": "Uttapam",
+      "lunch": "Vegetable kurma with rice",
+      "dinner": "Millet khichdi"
+    },
+    {
+      "day": "Sunday",
+      "breakfast": "Ragi dosa",
+      "lunch": "Mamidikaya pappu with rice",
+      "dinner": "Curd rice with tempered vegetables"
+    }
+  ],
+  "disclaimer": "General wellness example only. Not medical advice."
+}

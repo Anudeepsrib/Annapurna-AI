@@ -2,9 +2,10 @@ import asyncio
 import json
 from unittest.mock import patch
 
+import pytest
 from fastapi.testclient import TestClient
 
-from app.core.config import settings
+from app.core.config import Settings, settings
 from app.services.pubmed_client import pubmed_client
 from app.services.usda_client import usda_client
 
@@ -27,6 +28,18 @@ def test_settings_defaults_are_local_first(client: TestClient):
     assert data["enable_usda"] is False
     assert data["enable_pubmed"] is False
     assert data["llm_provider"] == "ollama"
+    assert data["llm_network_mode"] == "local"
+    assert "prompts stay on this machine" in data["llm_privacy_note"].lower()
+
+
+def test_remote_llm_requires_external_network_gate():
+    with pytest.raises(ValueError, match="non-local LLM_BASE_URL"):
+        Settings(
+            LLM_PROVIDER="custom",
+            LLM_BASE_URL="https://api.openai.com/v1",
+            ENABLE_EXTERNAL_NETWORK=False,
+            _env_file=None,
+        )
 
 
 def test_optional_fetchers_do_not_call_network_by_default():
@@ -141,3 +154,109 @@ def test_pregnancy_prompt_returns_wellness_guardrail(client: TestClient):
 
     assert response.status_code == 200
     assert response.json()["source_status"] == "safety_guardrail"
+
+
+def test_family_pantry_constraints_drive_grocery_optimization(client: TestClient):
+    payload = {
+        "householdSize": "3",
+        "spiceLevel": "medium",
+        "dietary": "vegetarian festival week",
+        "familyProfiles": [
+            {
+                "label": "Adult cook",
+                "ageGroup": "adult",
+                "appetite": "regular",
+                "dietaryTags": ["prefers rice lunch"],
+                "privacyScope": "local_device_only",
+            },
+            {
+                "label": "Child",
+                "ageGroup": "child",
+                "appetite": "light",
+                "dietaryTags": ["mild spice"],
+                "privacyScope": "meal_planning_only",
+            },
+        ],
+        "pantryInventory": [
+            {"name": "rice", "quantity": "5 kg", "category": "grains", "expiresWithinDays": 30},
+            {"name": "spinach", "quantity": "1 bunch", "category": "vegetables", "expiresWithinDays": 2},
+        ],
+        "teluguAndhraConstraints": [
+            "vegetarian",
+            "no_egg",
+            "andhra_telugu_style",
+            "rice_based_lunch",
+            "pappu_or_dal_daily",
+            "mild_for_children",
+            "festival_no_onion_garlic",
+        ],
+    }
+
+    with patch("app.services.plan_service.llm_service.generate_response", return_value="not json"):
+        response = client.post("/api/v1/generate-plan", json=payload)
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["source_status"] == "fallback_invalid_llm_json"
+    serialized_plan = json.dumps(data["plan"]).lower()
+    assert "onion" not in serialized_plan
+    assert "garlic" not in serialized_plan
+
+    categories = data["grocery_optimization"]
+    pantry_category = next(category for category in categories if category["name"] == "Use From Pantry First")
+    rice_item = next(item for item in pantry_category["items"] if item["name"] == "rice")
+    assert rice_item["status"] == "pantry"
+    assert rice_item["quantity"] == "5 kg"
+
+    grocery_response = client.get("/api/v1/grocery-list")
+    assert grocery_response.status_code == 200
+    assert any(category["name"] == "Use From Pantry First" for category in grocery_response.json())
+
+
+def test_rule_validation_rejects_egg_in_no_egg_llm_plan(client: TestClient):
+    def meal(title: str, ingredients: list[str]):
+        return {
+            "title": title,
+            "description": "Home-style Andhra vegetarian meal.",
+            "ingredients": ingredients,
+            "time": "8:00 AM",
+            "nutrition": {},
+            "confidence": "medium",
+            "source_status": "llm_unverified",
+            "disclaimer": "Nutrition estimates are approximate and for general wellness planning only.",
+        }
+
+    invalid_plan = {
+        "plan": [
+            {
+                "day": "Monday",
+                "date": f"Day {index + 1}",
+                "confidence": "medium",
+                "source_status": "llm_unverified",
+                "disclaimer": "General wellness only. Nutrition estimates are approximate and not medical advice.",
+                "safety_notes": [],
+                "meals": {
+                    "breakfast": meal("Egg Dosa", ["egg", "rice", "urad dal"]),
+                    "lunch": meal("Tomato Pappu Rice", ["rice", "toor dal", "tomato"]),
+                    "dinner": meal("Millet Khichdi", ["millet", "moong dal", "vegetables"]),
+                },
+            }
+            for index in range(7)
+        ]
+    }
+
+    with patch("app.services.plan_service.llm_service.generate_response", return_value=json.dumps(invalid_plan)):
+        response = client.post(
+            "/api/v1/generate-plan",
+            json={
+                "householdSize": "2",
+                "spiceLevel": "medium",
+                "dietary": "vegetarian",
+                "teluguAndhraConstraints": ["vegetarian", "no_egg", "andhra_telugu_style"],
+            },
+        )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["source_status"] == "fallback_invalid_llm_json"
+    assert "egg" not in json.dumps(data["plan"]).lower()

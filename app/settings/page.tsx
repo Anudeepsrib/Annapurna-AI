@@ -8,8 +8,9 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
+import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
-import { Loader2, Check, AlertCircle, Database, Server, Globe, Shield } from "lucide-react"
+import { Loader2, Check, AlertCircle, Database, Server, Globe, Shield, Laptop, Cloud } from "lucide-react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { ApiClient, ApiError, type SettingsResponse } from "@/lib/api"
@@ -110,10 +111,17 @@ export default function SettingsPage() {
                 <CardTitle>LLM Configuration</CardTitle>
               </div>
               <CardDescription>
-                Configure your local LLM endpoint. Default is Ollama at localhost:11434.
+                Configure the model endpoint. Default is local Ollama at localhost:11434.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div className="flex flex-wrap items-center gap-2 rounded-md border bg-muted/40 p-3 text-sm">
+                <Badge variant={settings?.llm_network_mode === "local" ? "secondary" : "destructive"}>
+                  {settings?.llm_network_mode === "local" ? "Local model mode" : "External model mode"}
+                </Badge>
+                <span className="text-muted-foreground">{settings?.llm_privacy_note}</span>
+              </div>
+
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="provider">Provider</Label>
@@ -182,6 +190,40 @@ export default function SettingsPage() {
                   <li>Llama 3.2 7B (~4GB) - Very good quality</li>
                   <li>Mistral 7B (~4GB) - Excellent for this task</li>
                 </ul>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Local vs Cloud */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Local vs Cloud Model Switching</CardTitle>
+              <CardDescription>
+                Switching is intentional because prompts can include family roles, pantry items, allergies, and cultural preferences.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-4 md:grid-cols-2">
+              <div className="rounded-lg border bg-white p-4">
+                <div className="flex items-center gap-2 font-medium">
+                  <Laptop className="h-5 w-5 text-secondary" />
+                  Local mode
+                </div>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Use Ollama, LM Studio, llama.cpp, or another endpoint on localhost. This is the default and keeps
+                  model prompts on the same machine.
+                </p>
+                <code className="mt-3 block rounded bg-muted p-2 text-xs">LLM_BASE_URL=http://localhost:11434</code>
+              </div>
+              <div className="rounded-lg border bg-white p-4">
+                <div className="flex items-center gap-2 font-medium">
+                  <Cloud className="h-5 w-5 text-primary" />
+                  External mode
+                </div>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Point to a non-local OpenAI-compatible endpoint only after setting ENABLE_EXTERNAL_NETWORK=true.
+                  Family profile and pantry prompt text may leave the device.
+                </p>
+                <code className="mt-3 block rounded bg-muted p-2 text-xs">ENABLE_EXTERNAL_NETWORK=true</code>
               </div>
             </CardContent>
           </Card>

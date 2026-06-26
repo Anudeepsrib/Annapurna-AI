@@ -5,6 +5,9 @@ export interface Ingredient {
   name: string;
   quantity: string;
   meals: string[];
+  priority?: "high" | "normal" | "pantry" | "use_soon";
+  status?: "need_to_buy" | "pantry" | "pantry_unused";
+  optimization_note?: string;
 }
 
 export interface GroceryCategory {
@@ -50,6 +53,34 @@ export interface PlanPreferences {
   spiceLevel: string;
   dietary: string;
   allergies?: string[];
+  familyProfiles?: FamilyProfile[];
+  pantryInventory?: PantryItem[];
+  teluguAndhraConstraints?: TeluguAndhraConstraint[];
+}
+
+export type TeluguAndhraConstraint =
+  | "vegetarian"
+  | "no_egg"
+  | "andhra_telugu_style"
+  | "rice_based_lunch"
+  | "pappu_or_dal_daily"
+  | "fermented_breakfasts_ok"
+  | "mild_for_children"
+  | "festival_no_onion_garlic";
+
+export interface FamilyProfile {
+  label: string;
+  ageGroup: "adult" | "senior" | "teen" | "child";
+  appetite: "light" | "regular" | "hearty";
+  dietaryTags: string[];
+  privacyScope: "local_device_only" | "meal_planning_only";
+}
+
+export interface PantryItem {
+  name: string;
+  quantity?: string;
+  category?: "grains" | "dals" | "vegetables" | "spices" | "dairy" | "other";
+  expiresWithinDays?: number | null;
 }
 
 export interface GeneratePlanResponse {
@@ -59,6 +90,7 @@ export interface GeneratePlanResponse {
   source_status: string;
   disclaimer: string;
   safety_notes: string[];
+  grocery_optimization: GroceryCategory[];
 }
 
 export interface EvidenceCitation {
@@ -89,6 +121,8 @@ export interface SettingsResponse {
   llm_provider: string;
   llm_base_url: string;
   llm_model: string;
+  llm_network_mode: "local" | "external";
+  llm_privacy_note: string;
   database_url: string;
   enable_external_network: boolean;
   enable_usda: boolean;

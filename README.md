@@ -1,8 +1,9 @@
 # Annapurna-AI
 
-Annapurna-AI is a local-first AI meal planner for Andhra Telugu vegetarian home
-cooking. It uses FastAPI, SQLite, LiteLLM/Ollama, and Next.js to generate weekly
-meal plans and grocery lists while keeping local data on your machine by default.
+Annapurna-AI is a local-first, culturally aware planning app for Andhra Telugu
+vegetarian home cooking. It uses FastAPI, SQLite, LiteLLM/Ollama, and Next.js to
+generate weekly meal plans, pantry-aware grocery lists, and privacy-preserving
+family planning context while keeping local data on your machine by default.
 
 This is a privacy-aware reference implementation for general wellness planning.
 It does not provide medical advice, diagnosis, treatment, or clinical nutrition
@@ -11,11 +12,45 @@ plans.
 ## What Stays Local
 
 - Meal plans and grocery lists are stored in local SQLite.
+- Family profiles use role labels, age groups, appetite bands, and dietary tags
+  instead of legal names, exact ages, weights, or diagnoses.
+- Pantry inventory and Telugu/Andhra dietary constraints are stored with the
+  generated plan context locally by default.
 - The default LLM endpoint is local Ollama at `http://localhost:11434`.
 - USDA and PubMed fetchers are disabled by default.
 - No analytics, telemetry, Sentry, PostHog, or LangSmith hooks are included.
 
 See [LOCAL_FIRST.md](LOCAL_FIRST.md) for the full privacy posture.
+See [docs/LOCAL_FIRST_PRODUCT_REFRAME.md](docs/LOCAL_FIRST_PRODUCT_REFRAME.md)
+for the PM and privacy-by-design reframe.
+
+## Product Capabilities
+
+- Privacy-preserving family profiles with role labels, age bands, appetite, and
+  scoped dietary tags.
+- Pantry inventory intake with quantity and expiry hints.
+- Grocery optimization that separates pantry-first items, buy/replenish items,
+  and pantry items to use soon.
+- Telugu/Andhra dietary rules for vegetarian, no egg, rice-based lunch, daily
+  pappu/dal, fermented breakfasts, child-friendly spice, and festival no
+  onion/garlic planning.
+- Rule-based validation tests that reject malformed model output and cultural
+  constraint violations before saving.
+- Local-vs-cloud model boundary: non-local LLM endpoints require
+  `ENABLE_EXTERNAL_NETWORK=true`.
+
+## Screenshots
+
+Screenshots are stored in [docs/screenshots](docs/screenshots).
+
+![Profile privacy and pantry intake](docs/screenshots/profile-privacy-pantry.png)
+
+![Pantry-first grocery optimization](docs/screenshots/grocery-optimization.png)
+
+## Sample Plans
+
+See [docs/SAMPLE_MEAL_PLANS.md](docs/SAMPLE_MEAL_PLANS.md) and
+[backend/app/data/sample_meal_plans/andhra_telugu_family_week.json](backend/app/data/sample_meal_plans/andhra_telugu_family_week.json).
 
 ## Tech Stack
 
@@ -147,9 +182,31 @@ ENABLE_EXTERNAL_NETWORK=true
 USDA also requires `ENABLE_USDA=true` and `USDA_API_KEY`.
 PubMed also requires `ENABLE_PUBMED=true` and `PUBMED_EMAIL`.
 
+## Local vs Cloud Models
+
+Local model mode is the default:
+
+```env
+LLM_PROVIDER=ollama
+LLM_BASE_URL=http://localhost:11434
+ENABLE_EXTERNAL_NETWORK=false
+```
+
+External model mode is opt-in. If `LLM_BASE_URL` points to a non-local host,
+the backend requires:
+
+```env
+ENABLE_EXTERNAL_NETWORK=true
+```
+
+In external mode, family profile labels, pantry inventory, allergies, and
+dietary prompts may leave the machine as model prompt data. Keep local mode for
+private household planning.
+
 ## Safety Boundaries
 
-Annapurna-AI returns general wellness guidance only. Prompts involving diabetes,
+Annapurna-AI returns general wellness guidance only. It is not a medical device,
+diagnosis tool, treatment planner, or clinical nutrition system. Prompts involving diabetes,
 pregnancy, kidney disease, eating disorders, severe allergies, epilepsy
 medication interactions, pediatric diets, or extreme weight-loss goals trigger
 guardrails advising review with a qualified clinician or registered dietitian.

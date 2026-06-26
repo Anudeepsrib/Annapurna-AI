@@ -1,9 +1,17 @@
 from typing import Literal
+from urllib.parse import urlparse
 
 from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 LOCAL_CORS_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000"]
+LOCAL_LLM_HOSTS = {"localhost", "127.0.0.1", "::1", "0.0.0.0", "host.docker.internal", "ollama"}
+
+
+def is_local_llm_base_url(url: str) -> bool:
+    parsed = urlparse(url)
+    host = (parsed.hostname or "").casefold()
+    return host in LOCAL_LLM_HOSTS
 
 
 class Settings(BaseSettings):
@@ -73,6 +81,10 @@ class Settings(BaseSettings):
         if (self.ENABLE_USDA or self.ENABLE_PUBMED) and not self.ENABLE_EXTERNAL_NETWORK:
             raise ValueError(
                 "ENABLE_EXTERNAL_NETWORK must be true before USDA or PubMed fetchers can be enabled"
+            )
+        if not is_local_llm_base_url(self.LLM_BASE_URL) and not self.ENABLE_EXTERNAL_NETWORK:
+            raise ValueError(
+                "ENABLE_EXTERNAL_NETWORK must be true before using a non-local LLM_BASE_URL"
             )
         if self.APP_ENV == "production":
             if self.DEBUG:

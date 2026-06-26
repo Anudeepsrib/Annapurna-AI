@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import Link from "next/link"
-import { ArrowRight, Leaf, ChefHat, BookOpen } from "lucide-react"
+import { ArrowRight, ChefHat, ShieldCheck, ShoppingBasket, Server } from "lucide-react"
 
 export default function Home() {
   return (
@@ -17,16 +17,16 @@ export default function Home() {
           </div>
           <div className="container mx-auto flex max-w-[64rem] flex-col items-center gap-6 text-center">
             <div className="rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary shadow-sm border border-primary/20">
-              South Indian Vegetarian • Andhra Style
+              Local-first • Telugu / Andhra • Wellness, not medical advice
             </div>
             <h1 className="font-serif text-4xl font-bold tracking-tight text-primary sm:text-5xl md:text-6xl lg:text-7xl">
-              Plan your week. <br className="hidden sm:inline" />
+              Plan with your pantry. <br className="hidden sm:inline" />
               <span>Cook like home.</span>
             </h1>
             <p className="max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8 font-sans">
-              Authentic meal planning for Andhra Telugu households.
-              Balanced nutrition, zero waste, and culturally respectful recipes
-              that feel like home cooking.
+              A privacy-aware meal planner for Andhra Telugu households. Capture family roles,
+              pantry stock, allergies, and cultural rules locally before generating weekly meals
+              and a grocery plan.
             </p>
             <div className="space-x-4 pt-4">
               <Link href="/profile">
@@ -51,10 +51,10 @@ export default function Home() {
               Why Annapurna?
             </h2>
             <p className="max-w-[85%] leading-normal text-muted-foreground sm:text-lg sm:leading-7">
-              Designed specifically for the nuances of South Indian vegetarian cooking.
+              Designed for the privacy, pantry, and cultural nuance of Andhra Telugu home cooking.
             </p>
           </div>
-          <div className="mx-auto grid justify-center gap-4 sm:grid-cols-2 md:max-w-[64rem] md:grid-cols-3">
+          <div className="mx-auto grid justify-center gap-4 sm:grid-cols-2 md:max-w-[72rem] lg:grid-cols-4">
             <Card className="flex flex-col items-center justify-between p-2">
               <CardContent className="pt-6 flex flex-col items-center text-center gap-3">
                 <div className="p-3 bg-accent/10 rounded-full">
@@ -69,22 +69,33 @@ export default function Home() {
             <Card className="flex flex-col items-center justify-between p-2">
               <CardContent className="pt-6 flex flex-col items-center text-center gap-3">
                 <div className="p-3 bg-secondary/10 rounded-full">
-                  <Leaf className="h-8 w-8 text-secondary" />
+                  <ShoppingBasket className="h-8 w-8 text-secondary" />
                 </div>
-                <h3 className="font-serif text-xl font-bold">Zero Waste</h3>
+                <h3 className="font-serif text-xl font-bold">Pantry First</h3>
                 <p className="text-sm text-muted-foreground">
-                  Smart grocery lists that use up ingredients across multiple meals.
+                  Grocery lists separate pantry stock, expiring items, and ingredients to buy.
                 </p>
               </CardContent>
             </Card>
             <Card className="flex flex-col items-center justify-between p-2">
               <CardContent className="pt-6 flex flex-col items-center text-center gap-3">
                 <div className="p-3 bg-primary/10 rounded-full">
-                  <BookOpen className="h-8 w-8 text-primary" />
+                  <ShieldCheck className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="font-serif text-xl font-bold">Local Evidence</h3>
+                <h3 className="font-serif text-xl font-bold">Private Family Profiles</h3>
                 <p className="text-sm text-muted-foreground">
-                  Curated reference notes support general wellness planning without clinical claims.
+                  Use role labels, age groups, appetite bands, and local-only planning context.
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="flex flex-col items-center justify-between p-2">
+              <CardContent className="pt-6 flex flex-col items-center text-center gap-3">
+                <div className="p-3 bg-primary/10 rounded-full">
+                  <Server className="h-8 w-8 text-primary" />
+                </div>
+                <h3 className="font-serif text-xl font-bold">Local Model Default</h3>
+                <p className="text-sm text-muted-foreground">
+                  Ollama is the default. External model endpoints require an explicit network flag.
                 </p>
               </CardContent>
             </Card>

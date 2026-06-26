@@ -1,7 +1,7 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Card, CardContent } from "@/components/ui/card"
-import { ShieldCheck, Heart, Leaf } from "lucide-react"
+import { ShieldCheck, Heart, Leaf, LockKeyhole, ShoppingBasket } from "lucide-react"
 
 export default function AboutPage() {
     return (
@@ -39,11 +39,32 @@ export default function AboutPage() {
                         </Card>
                     </div>
 
+                    <Card>
+                        <CardContent className="pt-6 space-y-4">
+                            <div className="flex items-center gap-3">
+                                <LockKeyhole className="h-8 w-8 text-primary" />
+                                <h3 className="font-serif text-xl font-bold">Privacy-Preserving Personalization</h3>
+                            </div>
+                            <p className="text-muted-foreground">
+                                A family can describe &quot;Adult cook,&quot; &quot;Senior,&quot; and &quot;Child&quot; instead of using real names,
+                                add pantry items like rice, spinach, and moong dal, and choose Telugu household rules
+                                such as rice-based lunch or no onion/garlic for festival weeks. Annapurna uses those
+                                local details to personalize meals and grocery optimization without requiring accounts,
+                                analytics, or cloud model calls by default.
+                            </p>
+                            <div className="flex items-center gap-2 rounded-md bg-muted p-3 text-sm text-muted-foreground">
+                                <ShoppingBasket className="h-4 w-4 text-secondary" />
+                                The result is personalization through minimization: enough context to plan meals,
+                                without collecting exact ages, weights, diagnoses, or legal names.
+                            </div>
+                        </CardContent>
+                    </Card>
+
                     <Card className="border-secondary/20 bg-secondary/5">
                         <CardContent className="pt-6 flex gap-4">
                             <ShieldCheck className="h-10 w-10 text-secondary shrink-0" />
                             <div className="space-y-2">
-                                <h3 className="font-serif text-lg font-bold">Safety Disclaimer</h3>
+                                <h3 className="font-serif text-lg font-bold">Wellness, Not Medical Advice</h3>
                                 <p className="text-sm text-muted-foreground leading-relaxed">
                                     Annapurna provides general wellness and educational information only.
                                     It does not provide medical advice, diagnosis, or treatment.

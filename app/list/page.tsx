@@ -8,8 +8,9 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { ApiClient, type GroceryCategory } from "@/lib/api"
-import { ArrowLeft, Printer, RefreshCw, Share2 } from "lucide-react"
+import { ArrowLeft, Leaf, Printer, RefreshCw, Share2 } from "lucide-react"
 
 export default function GroceryPage() {
     const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({})
@@ -43,8 +44,23 @@ export default function GroceryPage() {
                             </Button>
                         </Link>
                         <div>
-                            <h1 className="font-serif text-3xl font-bold">Grocery List</h1>
-                            <p className="text-muted-foreground">Generated from your latest local plan.</p>
+                            <h1 className="font-serif text-3xl font-bold">Pantry-First Grocery Plan</h1>
+                            <p className="text-muted-foreground">
+                                Generated locally from your latest plan and pantry inventory.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="mb-6 rounded-lg border border-secondary/20 bg-secondary/5 p-4">
+                        <div className="flex gap-3">
+                            <Leaf className="mt-0.5 h-5 w-5 text-secondary" />
+                            <div>
+                                <p className="font-medium">Optimization rule</p>
+                                <p className="text-sm text-muted-foreground">
+                                    Use existing pantry stock first, highlight ingredients to buy, and surface
+                                    expiring items without inventing exact recipe quantities.
+                                </p>
+                            </div>
                         </div>
                     </div>
 
@@ -96,12 +112,30 @@ export default function GroceryPage() {
                                                         >
                                                             {item.name}
                                                         </Label>
-                                                        <div className={`text-sm text-muted-foreground flex justify-between gap-4 ${checkedItems[item.id] ? "opacity-50" : ""}`}>
+                                                        <div className={`mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground ${checkedItems[item.id] ? "opacity-50" : ""}`}>
                                                             <span>{item.quantity}</span>
-                                                            <span className="text-xs italic hidden group-hover:inline-block transition-opacity opacity-70">
-                                                                Used in: {item.meals.join(", ")}
-                                                            </span>
+                                                            {item.status ? (
+                                                                <Badge variant={item.status === "need_to_buy" ? "default" : "secondary"}>
+                                                                    {item.status === "need_to_buy" ? "Buy" : item.status === "pantry" ? "Pantry" : "Use soon"}
+                                                                </Badge>
+                                                            ) : null}
+                                                            {item.priority === "high" ? (
+                                                                <Badge variant="outline">High repeat</Badge>
+                                                            ) : null}
+                                                            {item.priority === "use_soon" ? (
+                                                                <Badge variant="outline">Use soon</Badge>
+                                                            ) : null}
                                                         </div>
+                                                        {item.optimization_note ? (
+                                                            <p className="mt-1 text-xs text-muted-foreground">
+                                                                {item.optimization_note}
+                                                            </p>
+                                                        ) : null}
+                                                        {item.meals.length > 0 ? (
+                                                            <p className="mt-1 text-xs italic text-muted-foreground/80">
+                                                                Used in: {item.meals.join(", ")}
+                                                            </p>
+                                                        ) : null}
                                                     </div>
                                                 </div>
                                             ))}

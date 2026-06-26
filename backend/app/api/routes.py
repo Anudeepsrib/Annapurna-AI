@@ -76,6 +76,7 @@ async def generate_plan(
         "source_status": result["source_status"],
         "disclaimer": result.get("disclaimer", WELLNESS_DISCLAIMER),
         "safety_notes": result.get("safety_notes", []),
+        "grocery_optimization": result.get("grocery_optimization", []),
     }
 
 

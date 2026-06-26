@@ -44,8 +44,9 @@ class LLMService:
         user_id: Optional[str] = None,
     ) -> Optional[str]:
         """
-        Generate a response using LiteLLM with local LLM endpoint.
-        No data leaves the user's machine.
+        Generate a response using LiteLLM.
+        Defaults are local-first; a non-local custom endpoint can send prompt data
+        outside the machine and is gated by configuration.
         """
         try:
             model_string = self._get_model_string()
