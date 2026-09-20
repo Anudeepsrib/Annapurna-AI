@@ -1,5 +1,9 @@
 # Milestone 5: Planner Service Extraction
 
+> Historical implementation record. This milestone is complete; intermediate
+> test counts and next-step notes are preserved for traceability. See
+> [Phase Completion](PHASE_COMPLETION.md) for current status.
+
 ## Baseline
 
 - Milestone 4 backend tests: 60 passed.
@@ -56,7 +60,7 @@
 - Recipe ingredients still lack reliable structured amounts, so grocery output
   preserves uncertainty instead of fabricating quantities.
 
-## Next milestone
+## Historical next step
 
 Milestone 6: add `/pantry`, improve the shopping-list reasoning UI, and split
 the large profile screen into focused components.

@@ -11,6 +11,7 @@ from app.services.llm_service import LLMService
 class CandidatePlanner:
     def __init__(self, llm: LLMService):
         self.llm = llm
+        self.last_error_code: str | None = None
 
     async def generate_candidates(
         self,
@@ -19,12 +20,14 @@ class CandidatePlanner:
         user_id: str,
     ) -> list[Any] | None:
         system_prompt, user_prompt = build_planner_prompts(request, preferences)
+        self.llm.last_failure_code = None
         response = await self.llm.generate_response(
             system_prompt,
             user_prompt,
             json_mode=True,
             user_id=user_id,
         )
+        self.last_error_code = self.llm.last_failure_code
         if response is None:
             return None
         return self._extract_candidates(response)

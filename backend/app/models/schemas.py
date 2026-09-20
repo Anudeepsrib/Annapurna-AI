@@ -4,6 +4,7 @@ from typing import Literal
 from pydantic import BaseModel, Field, field_validator
 
 from app.domain.planning.models import PlanningPreferences
+from app.domain.recipes import RecipeIngredient
 
 # --- C. Curated Evidence Models ---
 
@@ -108,6 +109,17 @@ class PantryItem(BaseModel):
         return " ".join(value.split())
 
 
+class ManualShoppingItem(BaseModel):
+    name: str = Field(min_length=1, max_length=120)
+    quantity: str = Field(default="", max_length=80)
+    category: str = Field(default="other", max_length=40)
+
+    @field_validator("name", "quantity", "category")
+    @classmethod
+    def clean_manual_item(cls, value: str) -> str:
+        return " ".join(value.split())
+
+
 class PlanRequest(BaseModel):
     householdSize: str = Field(default="2", max_length=16)
     spiceLevel: str = Field(default="medium", max_length=32)
@@ -116,6 +128,7 @@ class PlanRequest(BaseModel):
     familyProfiles: list[FamilyProfile] = Field(default_factory=list, max_length=12)
     pantryInventory: list[PantryItem] = Field(default_factory=list, max_length=80)
     pantryText: str | None = Field(default=None, max_length=5000)
+    manualShoppingItems: list[ManualShoppingItem] = Field(default_factory=list, max_length=40)
     preferences: PlanningPreferences | None = None
     teluguAndhraConstraints: list[TeluguAndhraConstraint] = Field(
         default_factory=lambda: [
@@ -195,6 +208,10 @@ class PlanMeal(BaseModel):
     nutrition: NutritionEstimate = Field(default_factory=NutritionEstimate)
     confidence: Literal["low", "medium", "high"] = "low"
     source_status: str = Field(default="llm_unverified", max_length=80)
+    locked: bool = False
+    recipeId: str | None = Field(default=None, max_length=100)
+    ingredientRequirements: list[RecipeIngredient] = Field(default_factory=list, max_length=30)
+    leftoverId: int | None = Field(default=None, ge=1)
     disclaimer: str = (
         "Nutrition estimates are approximate and for general wellness planning only."
     )
@@ -224,6 +241,7 @@ class DayPlan(BaseModel):
         "General wellness only. Nutrition estimates are approximate and not medical advice."
     )
     safety_notes: list[str] = Field(default_factory=list)
+    guestCount: int | None = Field(default=None, ge=1, le=24)
 
 
 class GenerationMetadata(BaseModel):
@@ -236,6 +254,7 @@ class GenerationMetadata(BaseModel):
     validator_version: str
     source_status: str
     fallback_used: bool
+    error_code: str | None = None
 
 # --- API Response Models ---
 

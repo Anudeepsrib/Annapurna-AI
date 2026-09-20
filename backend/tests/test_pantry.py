@@ -93,7 +93,7 @@ def test_transactions_convert_units_record_history_and_reject_stale_updates(clie
         },
     )
     assert stale.status_code == 409
-    assert stale.json()["error"]["code"] == "PantryConflictError"
+    assert stale.json()["error"]["code"] == "PANTRY_CONFLICT"
 
     history = client.get(f"/api/v1/pantry/{rice['id']}/transactions")
     assert history.status_code == 200

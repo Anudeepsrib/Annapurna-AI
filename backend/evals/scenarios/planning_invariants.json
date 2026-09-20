@@ -1,0 +1,55 @@
+[
+  {
+    "name": "vegetarian-no-egg-festival-week",
+    "request": {
+      "householdSize": "4",
+      "spiceLevel": "mild",
+      "dietary": "vegetarian",
+      "allergies": [],
+      "teluguAndhraConstraints": [
+        "vegetarian",
+        "no_egg",
+        "andhra_telugu_style",
+        "festival_no_onion_garlic",
+        "mild_for_children"
+      ]
+    },
+    "expected": {
+      "forbiddenTerms": ["chicken", "fish", "meat", "egg", "onion", "garlic"],
+      "spiceLevel": "mild"
+    }
+  },
+  {
+    "name": "dairy-allergy",
+    "request": {
+      "householdSize": "2",
+      "spiceLevel": "medium",
+      "dietary": "vegetarian with dairy allergy",
+      "allergies": ["dairy"],
+      "teluguAndhraConstraints": ["vegetarian", "andhra_telugu_style"]
+    },
+    "expected": {
+      "forbiddenTerms": ["butter", "cheese", "curd", "dairy", "ghee", "milk", "paneer", "yogurt"]
+    }
+  },
+  {
+    "name": "pantry-aware-valid-week",
+    "request": {
+      "householdSize": "3",
+      "spiceLevel": "medium",
+      "dietary": "vegetarian",
+      "pantryInventory": [
+        {"name": "rice", "quantity": "3 kg", "category": "grains", "expiresWithinDays": 30},
+        {"name": "spinach", "quantity": "1 bunch", "category": "vegetables", "expiresWithinDays": 2}
+      ],
+      "preferences": {
+        "pantryUtilizationPreference": "high",
+        "repetitionTolerance": "low"
+      },
+      "teluguAndhraConstraints": ["vegetarian", "andhra_telugu_style", "rice_based_lunch"]
+    },
+    "expected": {
+      "forbiddenTerms": ["beef", "chicken", "fish", "meat", "mutton", "pork"]
+    }
+  }
+]

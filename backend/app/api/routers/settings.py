@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from app.core.config import is_local_llm_base_url, settings
 from app.services.llm_service import llm_service
 
-router = APIRouter()
+router = APIRouter(tags=["settings"])
 
 
 class SettingsResponse(BaseModel):

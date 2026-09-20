@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, patch
 
 from fastapi.testclient import TestClient
 
-from app.domain.planning.grocery import GroceryCompiler
+from app.domain.grocery import GroceryCompiler
 from app.domain.planning.models import PlanningPreferences
 from app.domain.planning.planner import CandidatePlanner
 from app.models.schemas import PantryItem, PlanRequest

@@ -32,6 +32,10 @@ class Settings(BaseSettings):
     LLM_BASE_URL: str = "http://localhost:11434"
     LLM_MODEL: str = "llama3.2:latest"
     LLM_API_KEY: str | None = None
+    LLM_TIMEOUT_SECONDS: int = Field(default=30, ge=1, le=300)
+    LLM_MAX_RETRIES: int = Field(default=1, ge=0, le=3)
+    LLM_CIRCUIT_BREAKER_FAILURES: int = Field(default=3, ge=1, le=20)
+    LLM_CIRCUIT_BREAKER_SECONDS: int = Field(default=60, ge=1, le=600)
 
     # External fetchers are opt-in and gated behind ENABLE_EXTERNAL_NETWORK.
     ENABLE_EXTERNAL_NETWORK: bool = False

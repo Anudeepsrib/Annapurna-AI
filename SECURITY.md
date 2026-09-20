@@ -10,11 +10,18 @@ Local meal plans may include sensitive dietary preferences. Treat
 `annapurna.db`, exported plans, generated grocery lists, and logs as private
 user data.
 
+Stop the backend before backing up or replacing the SQLite file. Docker users
+should protect backups of the `annapurna-data` volume with the same care.
+
 ## Optional external APIs
 
 USDA and PubMed integrations are disabled by default. Enable them only when you
 understand that search text can leave your machine. Do not place real API keys in
 source control.
+
+Non-local model endpoints are also blocked unless
+`ENABLE_EXTERNAL_NETWORK=true`. In external mode, family role labels, pantry
+items, allergies, and dietary text may be included in model prompts.
 
 ## Vulnerability reporting
 
@@ -28,12 +35,21 @@ Recommended checks before publishing changes:
 
 ```bash
 python -m compileall backend/app
-cd backend && ruff check . && pytest
+cd backend
+python -m ruff check .
+python -m pytest -q
+python -m evals.run_evals
+python -m pip install pip-audit
+python -m pip_audit -r requirements.txt
+cd ..
 npm run lint
 npm run build
-npm audit --audit-level=high
+npm audit
 gitleaks detect --source .
 ```
 
 If `gitleaks` is unavailable, use `detect-secrets scan --all-files` as a
 secondary check and manually review the output.
+
+Dependency scans report known advisories, not proof of safety. Review network,
+logging, migration, and authorization changes manually even when scans pass.

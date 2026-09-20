@@ -90,7 +90,8 @@ def test_migration_upgrades_existing_mealplan_table(tmp_path):
         tables = {row[0] for row in connection.execute("SELECT name FROM sqlite_master WHERE type = 'table'")}
 
     assert "generation_metadata_json" in columns
-    assert revision == ("0003_household_activity",)
+    assert revision == ("0004_idempotency",)
     assert saved_payload == ('{"schema_version": 1, "plan": []}',)
     assert {"pantry_item", "pantry_transaction"}.issubset(tables)
     assert {"meal_execution", "meal_feedback", "leftover"}.issubset(tables)
+    assert "generation_request" in tables

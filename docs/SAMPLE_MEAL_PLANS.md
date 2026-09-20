@@ -3,6 +3,10 @@
 These examples show how Annapurna-AI should behave for local-first Andhra Telugu
 planning. They are general wellness examples, not medical diets.
 
+They are illustrative rather than fixed generated output. The planner may use
+different titles while preserving the selected hard constraints and pantry
+behavior. For the product workflow, see the [User Guide](USER_GUIDE.md).
+
 ## Sample 1: Pantry-first family week
 
 Family profile:

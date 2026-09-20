@@ -40,6 +40,7 @@ class PlanScore(BaseModel):
     pantryUtilization: float
     expiringItemUtilization: float
     preferenceMatch: float
+    feedbackMatch: float = 0.0
     variety: float
     ingredientReuse: float
     missingIngredientPenalty: float
@@ -53,6 +54,7 @@ class ScoringWeights(BaseModel):
     pantryUtilization: float = 2.0
     expiringItemUtilization: float = 3.0
     preferenceMatch: float = 2.0
+    feedbackMatch: float = 1.5
     variety: float = 1.5
     ingredientReuse: float = 0.5
     missingIngredientPenalty: float = 1.0

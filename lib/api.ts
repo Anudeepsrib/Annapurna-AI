@@ -8,6 +8,11 @@ export interface Ingredient {
   priority?: "high" | "normal" | "pantry" | "use_soon";
   status?: "need_to_buy" | "pantry" | "pantry_unused";
   optimization_note?: string;
+  category?: string;
+  storeAffinity?: "indian_grocery" | "bulk" | "general_supermarket";
+  requiredQuantity?: string | null;
+  pantryQuantity?: string | null;
+  buyQuantity?: string | null;
 }
 
 export interface GroceryCategory {
@@ -32,6 +37,9 @@ export interface Meal {
   confidence?: "low" | "medium" | "high";
   source_status?: string;
   disclaimer?: string;
+  locked?: boolean;
+  recipeId?: string | null;
+  leftoverId?: number | null;
 }
 
 export interface DayPlan {
@@ -46,6 +54,7 @@ export interface DayPlan {
   source_status?: string;
   disclaimer?: string;
   safety_notes?: string[];
+  guestCount?: number | null;
 }
 
 export interface PlanPreferences {
@@ -56,6 +65,7 @@ export interface PlanPreferences {
   familyProfiles?: FamilyProfile[];
   pantryInventory?: PantryItem[];
   pantryText?: string;
+  manualShoppingItems?: { name: string; quantity?: string; category?: string }[];
   preferences?: SoftPlanningPreferences;
   teluguAndhraConstraints?: TeluguAndhraConstraint[];
 }
@@ -162,6 +172,13 @@ export interface GeneratePlanResponse {
   disclaimer: string;
   safety_notes: string[];
   grocery_optimization: GroceryCategory[];
+  generation_metadata: {
+    generation_id: string;
+    generated_at: string;
+    source_status: string;
+    fallback_used: boolean;
+    error_code?: string | null;
+  };
 }
 
 export interface EvidenceCitation {
@@ -223,10 +240,12 @@ export class ApiError extends Error {
 const API_BASE_PATH = process.env.NEXT_PUBLIC_API_BASE_PATH || "/api/python";
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const requestId = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
   const response = await fetch(`${API_BASE_PATH}${path}`, {
     ...init,
     headers: {
       "Content-Type": "application/json",
+      "X-Request-ID": requestId,
       ...init?.headers,
     },
   });
@@ -251,11 +270,38 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 export const ApiClient = {
   getPlan: async (): Promise<DayPlan[]> => request<DayPlan[]>("/plan"),
 
-  generatePlan: async (prefs: PlanPreferences): Promise<GeneratePlanResponse> =>
-    request<GeneratePlanResponse>("/generate-plan", {
+  setMealLock: async (
+    day: string,
+    mealType: TodayMeal["mealType"],
+    locked: boolean,
+  ): Promise<Meal> =>
+    request<Meal>(`/plan/${encodeURIComponent(day)}/${mealType}/lock`, {
       method: "POST",
-      body: JSON.stringify(prefs),
+      body: JSON.stringify({ locked }),
     }),
+
+  replaceMeal: async (
+    day: string,
+    mealType: TodayMeal["mealType"],
+  ): Promise<{ meal: Meal; plan: DayPlan[]; grocery_optimization: GroceryCategory[] }> =>
+    request(`/plan/${encodeURIComponent(day)}/${mealType}/replace`, {
+      method: "POST",
+      body: JSON.stringify({}),
+    }),
+
+  regenerateDay: async (
+    day: string,
+  ): Promise<{ day: string; changed: string[]; plan: DayPlan[]; grocery_optimization: GroceryCategory[] }> =>
+    request(`/plan/${encodeURIComponent(day)}/regenerate`, { method: "POST" }),
+
+  generatePlan: async (prefs: PlanPreferences): Promise<GeneratePlanResponse> => {
+    const idempotencyKey = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
+    return request<GeneratePlanResponse>("/generate-plan", {
+      method: "POST",
+      headers: { "Idempotency-Key": idempotencyKey },
+      body: JSON.stringify(prefs),
+    });
+  },
 
   getGroceryList: async (): Promise<GroceryCategory[]> => request<GroceryCategory[]>("/grocery-list"),
 
@@ -269,14 +315,18 @@ export const ApiClient = {
 
   getToday: async (): Promise<TodayResponse> => request<TodayResponse>("/today"),
 
+  sendCommand: async (text: string): Promise<{ command: { type: string }; result: unknown }> =>
+    request("/commands", { method: "POST", body: JSON.stringify({ text }) }),
+
   setMealStatus: async (
     day: string,
     mealType: TodayMeal["mealType"],
     status: MealStatus,
+    details?: { servingsRemaining?: number; usableUntil?: string },
   ): Promise<{ status: MealStatus }> =>
     request<{ status: MealStatus }>(`/today/${encodeURIComponent(day)}/${mealType}/status`, {
       method: "POST",
-      body: JSON.stringify({ status }),
+      body: JSON.stringify({ status, ...details }),
     }),
 
   recordMealFeedback: async (
@@ -287,6 +337,24 @@ export const ApiClient = {
     request<{ signal: FeedbackSignal }>(`/today/${encodeURIComponent(day)}/${mealType}/feedback`, {
       method: "POST",
       body: JSON.stringify({ signal }),
+    }),
+
+  updateLeftover: async (
+    leftoverId: number,
+    update: { servingsRemaining?: number; usableUntil?: string; consumed?: boolean },
+  ): Promise<Leftover> =>
+    request<Leftover>(`/leftovers/${leftoverId}`, {
+      method: "PATCH",
+      body: JSON.stringify(update),
+    }),
+
+  assignLeftover: async (
+    leftoverId: number,
+    day: string,
+    mealType: TodayMeal["mealType"],
+  ): Promise<Meal> =>
+    request<Meal>(`/leftovers/${leftoverId}/use/${encodeURIComponent(day)}/${mealType}`, {
+      method: "POST",
     }),
 
   getEvidence: async (topic: string): Promise<EvidenceResponse> =>

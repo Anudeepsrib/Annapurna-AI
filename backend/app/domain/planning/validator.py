@@ -31,7 +31,7 @@ class PlanValidator:
         except ValidationError as exc:
             raise ValueError("Plan failed schema validation") from exc
 
-        plan = [day.model_dump() for day in days]
+        plan = [day.model_dump(mode="json") for day in days]
         text = " ".join(_day_text(day) for day in plan)
         for ingredient in constraints.prohibitedIngredients:
             if _contains(text, ingredient):

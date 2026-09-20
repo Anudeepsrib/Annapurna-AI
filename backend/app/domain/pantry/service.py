@@ -5,7 +5,7 @@ from math import ceil
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.exceptions import NotFoundError, PantryConflictError
+from app.core.exceptions import NotFoundError, PantryConflictError, PantryItemUnresolvedError
 from app.domain.ingredients import (
     IngredientCategory,
     Quantity,
@@ -139,7 +139,9 @@ class PantryService:
                 PantryTransactionType.EXPIRE,
                 PantryTransactionType.DISCARD,
             }:
-                raise PantryConflictError("Pantry quantity is unresolved; adjust it before subtracting stock")
+                raise PantryItemUnresolvedError(
+                    "Pantry quantity is unresolved; adjust it before subtracting stock"
+                )
             current = Quantity(value=0, unit=incoming.unit)
         else:
             current = Quantity(value=item.quantity_value, unit=Unit(item.unit))

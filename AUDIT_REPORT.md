@@ -2,6 +2,24 @@
 
 Date: 2026-05-15
 
+> Historical audit snapshot. Commands, dependency versions, test counts, and
+> remaining actions below record the May audit and are intentionally preserved.
+> See [Phase Completion](docs/PHASE_COMPLETION.md) for the current state.
+
+## Current Status (2026-09-20)
+
+- All 30 V2 phases and Milestones 1–9 are complete.
+- The backend suite passes 78 tests; all three offline evaluation scenarios and
+  Ruff pass.
+- Next.js is 16.3.5; frontend ESLint, TypeScript, production build, and
+  `npm audit` pass with zero known vulnerabilities.
+- Four Alembic migrations cover provenance, pantry, household activity, and
+  generation idempotency.
+- API handlers are grouped in `backend/app/api/routers`, and grocery compilation
+  lives in `backend/app/domain/grocery`.
+- Current setup and product instructions live in the
+  [User Guide](docs/USER_GUIDE.md) and [documentation index](docs/README.md).
+
 ## Summary
 
 The repository was audited as a local-first FastAPI, SQLite, LiteLLM/Ollama, and
@@ -53,8 +71,8 @@ and documentation issues were repaired.
 - Runtime/config: `backend/app/main.py`, `backend/app/core/config.py`,
   `backend/app/core/database.py`, `backend/app/core/exceptions.py`,
   `backend/app/core/safety.py`
-- Backend API/services/models: `backend/app/api/routes.py`,
-  `backend/app/api/settings.py`, `backend/app/models/db.py`,
+- Backend API/services/models: `backend/app/api/routes.py`, the settings router
+  (now `backend/app/api/routers/settings.py`), `backend/app/models/db.py`,
   `backend/app/models/schemas.py`, `backend/app/services/*.py`
 - Backend tests/config: `backend/tests/conftest.py`, `backend/tests/test_api.py`,
   `backend/pyproject.toml`, `backend/requirements.txt`
@@ -111,14 +129,14 @@ After:
 - Docs describe local-first behavior and optional external behavior without
   claiming clinical or compliance guarantees.
 
-## Remaining Manual Actions
+## Remaining Manual Actions at Audit Time
 
 - Start Docker Desktop and rerun `docker compose build`.
 - Pull the local model with `ollama pull llama3.2:latest`.
 - Create `backend/.env` from `env.example` for local development.
 - Review and commit the staged removal of `backend/annapurna.db`.
 
-## Remaining Risks
+## Risks Recorded at Audit Time
 
 - `pip check` fails in this machine's shared global Python install because of
   unrelated packages such as Camelot, LangChain, LlamaIndex, Semantic Kernel, and

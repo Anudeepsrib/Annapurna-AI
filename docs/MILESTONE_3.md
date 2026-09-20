@@ -1,5 +1,9 @@
 # Milestone 3: Structured Pantry and Transactions
 
+> Historical implementation record. This milestone is complete; intermediate
+> test counts and next-step notes are preserved for traceability. See
+> [Phase Completion](PHASE_COMPLETION.md) for current status.
+
 ## Baseline
 
 - Backend tests: 44 passed.
@@ -54,7 +58,7 @@
   subtraction is deferred rather than fabricated.
 - Imports upsert submitted items but do not delete unmentioned inventory.
 
-## Next milestone
+## Historical next step
 
 Milestone 4: deterministic hard-constraint compilation, typed soft preferences,
 plan validation, and heuristic plan scoring.

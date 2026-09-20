@@ -7,6 +7,7 @@ from app.domain.feedback.models import (
     EmptyTodayView,
     FeedbackRequest,
     FeedbackSignal,
+    LeftoverUpdateRequest,
     LeftoverView,
     MealActivityView,
     MealStatus,
@@ -14,10 +15,10 @@ from app.domain.feedback.models import (
     MealType,
     TodayView,
 )
+from app.domain.grocery import GroceryCompiler
 from app.domain.pantry import PantryService
-from app.domain.planning.grocery import GroceryCompiler
 from app.models.db import LeftoverRecord, MealPlan
-from app.models.schemas import PlanMeal
+from app.models.schemas import ManualShoppingItem, PlanMeal
 from app.repositories.feedback_repository import FeedbackRepository
 from app.repositories.plan_repository import PlanRepository
 
@@ -47,7 +48,19 @@ class TodayService:
             signals.setdefault(item.meal_type, []).append(FeedbackSignal(item.signal))
 
         pantry_legacy = await self.pantry.current_legacy_items(user_id)
-        grocery = self.grocery.compile(self._plan(saved), pantry_legacy)
+        payload = saved.plan_data if isinstance(saved.plan_data, dict) else {}
+        manual = [
+            ManualShoppingItem.model_validate(item)
+            for item in payload.get("manual_shopping_items", [])
+            if isinstance(item, dict)
+        ]
+        grocery = self.grocery.compile(
+            self._plan(saved),
+            pantry_legacy,
+            manual,
+            payload.get("shopping_exclusions", []),
+            payload.get("use_soon_requests", []),
+        )
         missing_by_meal: dict[str, list[str]] = {}
         for category in grocery:
             for item in category["items"]:
@@ -116,6 +129,72 @@ class TodayService:
 
     async def list_leftovers(self, user_id: str) -> list[LeftoverView]:
         return [self._leftover_view(item) for item in await self.feedback.list_active_leftovers(user_id)]
+
+    async def update_leftover(
+        self,
+        user_id: str,
+        leftover_id: int,
+        request: LeftoverUpdateRequest,
+    ) -> LeftoverView:
+        record = await self.feedback.get_leftover(user_id, leftover_id)
+        if record is None:
+            raise NotFoundError("Leftover")
+        updated = await self.feedback.update_leftover(
+            record,
+            request.servingsRemaining,
+            request.usableUntil,
+            request.consumed,
+        )
+        return self._leftover_view(updated)
+
+    async def assign_leftover(
+        self,
+        user_id: str,
+        leftover_id: int,
+        day: str,
+        meal_type: MealType,
+    ) -> dict:
+        leftover = await self.feedback.get_leftover(user_id, leftover_id)
+        usable_until = (
+            leftover.usable_until.replace(tzinfo=UTC)
+            if leftover is not None and leftover.usable_until.tzinfo is None
+            else leftover.usable_until
+            if leftover is not None
+            else None
+        )
+        if leftover is None or leftover.consumed or usable_until is None or usable_until < datetime.now(UTC):
+            raise NotFoundError("Active leftover")
+        saved, _meal = await self._meal_slot(user_id, day, meal_type)
+        payload = saved.plan_data
+        if not isinstance(payload, dict):
+            payload = {"schema_version": 1, "plan": payload}
+        selected = next(item for item in payload["plan"] if item.get("day") == day)
+        selected["meals"][meal_type.value] = PlanMeal(
+            title=f"Leftovers: {leftover.title}",
+            description=f"Use {leftover.servings_remaining} saved serving(s) before the use-by date.",
+            ingredients=["prepared leftover"],
+            time={MealType.BREAKFAST: "8:00 AM", MealType.LUNCH: "1:00 PM", MealType.DINNER: "7:30 PM"}[
+                meal_type
+            ],
+            source_status="leftover_reference",
+            leftoverId=leftover_id,
+        ).model_dump(mode="json")
+        pantry = await self.pantry.current_legacy_items(user_id)
+        manual = [
+            ManualShoppingItem.model_validate(item)
+            for item in payload.get("manual_shopping_items", [])
+            if isinstance(item, dict)
+        ]
+        payload["grocery_optimization"] = self.grocery.compile(
+            payload["plan"],
+            pantry,
+            manual,
+            payload.get("shopping_exclusions", []),
+            payload.get("use_soon_requests", []),
+        )
+        payload["schema_version"] = max(int(payload.get("schema_version", 1)), 5)
+        await self.plans.update_payload(saved, payload)
+        return selected["meals"][meal_type.value]
 
     async def _meal_slot(self, user_id: str, day: str, meal_type: MealType) -> tuple[MealPlan, dict]:
         saved = await self.plans.get_latest(user_id)

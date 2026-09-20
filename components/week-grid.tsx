@@ -1,17 +1,21 @@
 "use client"
 
-import type { DayPlan } from "@/lib/api"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { AlertCircle, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react"
+import { useMemo, useState } from "react"
+import { toast } from "sonner"
+
 import { MealCard } from "@/components/meal-card"
 import { Button } from "@/components/ui/button"
+import { ApiClient, ApiError, type DayPlan, type TodayMeal } from "@/lib/api"
 import { cn } from "@/lib/utils"
-import { AlertCircle, ChevronLeft, ChevronRight } from "lucide-react"
-import { useMemo, useState } from "react"
 
 interface WeekGridProps {
     weekPlan: DayPlan[]
 }
 
 export function WeekGrid({ weekPlan }: WeekGridProps) {
+    const queryClient = useQueryClient()
     const [selectedDayIndex, setSelectedDayIndex] = useState(0)
     const dayCount = weekPlan.length
     const selectedDay = weekPlan[selectedDayIndex]
@@ -19,6 +23,45 @@ export function WeekGrid({ weekPlan }: WeekGridProps) {
         () => Array.from(new Set(weekPlan.flatMap((day) => day.safety_notes || []))),
         [weekPlan],
     )
+    const mealMutation = useMutation({
+        mutationFn: async (action: {
+            kind: "lock" | "replace"
+            day: string
+            mealType: TodayMeal["mealType"]
+            locked?: boolean
+        }) => action.kind === "lock"
+            ? ApiClient.setMealLock(action.day, action.mealType, Boolean(action.locked))
+            : ApiClient.replaceMeal(action.day, action.mealType),
+        onSuccess: async () => {
+            await Promise.all([
+                queryClient.invalidateQueries({ queryKey: ["weekPlan"] }),
+                queryClient.invalidateQueries({ queryKey: ["groceryList"] }),
+                queryClient.invalidateQueries({ queryKey: ["today"] }),
+            ])
+        },
+        onError: (error) => toast.error(error instanceof ApiError ? error.message : "Could not update the meal."),
+    })
+    const dayMutation = useMutation({
+        mutationFn: () => ApiClient.regenerateDay(selectedDay.day),
+        onSuccess: async () => {
+            toast.success("Regenerated unlocked meals for this day.")
+            await Promise.all([
+                queryClient.invalidateQueries({ queryKey: ["weekPlan"] }),
+                queryClient.invalidateQueries({ queryKey: ["groceryList"] }),
+                queryClient.invalidateQueries({ queryKey: ["today"] }),
+            ])
+        },
+        onError: (error) => toast.error(error instanceof ApiError ? error.message : "Could not regenerate the day."),
+    })
+
+    const mealActions = (mealType: TodayMeal["mealType"], locked?: boolean) => ({
+        locked,
+        busy: mealMutation.isPending,
+        onLockChange: (next: boolean) => mealMutation.mutate({
+            kind: "lock", day: selectedDay.day, mealType, locked: next,
+        }),
+        onReplace: () => mealMutation.mutate({ kind: "replace", day: selectedDay.day, mealType }),
+    })
 
     if (!dayCount || !selectedDay) {
         return (
@@ -106,6 +149,17 @@ export function WeekGrid({ weekPlan }: WeekGridProps) {
                     <p className="text-muted-foreground text-sm uppercase tracking-wide font-medium">
                         Today&apos;s Menu
                     </p>
+                    {selectedDay.guestCount ? (
+                        <p className="text-sm font-medium text-secondary">Planning for {selectedDay.guestCount} guest(s)</p>
+                    ) : null}
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={dayMutation.isPending || mealMutation.isPending}
+                        onClick={() => dayMutation.mutate()}
+                    >
+                        <RefreshCw className="mr-2 h-3.5 w-3.5" /> Refresh unlocked meals
+                    </Button>
                 </div>
 
                 <div className="relative overflow-hidden bg-white/50 rounded-2xl p-2 md:p-6 border border-border/40">
@@ -120,6 +174,7 @@ export function WeekGrid({ weekPlan }: WeekGridProps) {
                                 nutrition={selectedDay.meals.breakfast.nutrition}
                                 confidence={selectedDay.meals.breakfast.confidence}
                                 disclaimer={selectedDay.meals.breakfast.disclaimer}
+                                {...mealActions("breakfast", selectedDay.meals.breakfast.locked)}
                             />
                         </div>
 
@@ -133,6 +188,7 @@ export function WeekGrid({ weekPlan }: WeekGridProps) {
                                 nutrition={selectedDay.meals.lunch.nutrition}
                                 confidence={selectedDay.meals.lunch.confidence}
                                 disclaimer={selectedDay.meals.lunch.disclaimer}
+                                {...mealActions("lunch", selectedDay.meals.lunch.locked)}
                             />
                         </div>
 
@@ -146,6 +202,7 @@ export function WeekGrid({ weekPlan }: WeekGridProps) {
                                 nutrition={selectedDay.meals.dinner.nutrition}
                                 confidence={selectedDay.meals.dinner.confidence}
                                 disclaimer={selectedDay.meals.dinner.disclaimer}
+                                {...mealActions("dinner", selectedDay.meals.dinner.locked)}
                             />
                         </div>
                     </div>

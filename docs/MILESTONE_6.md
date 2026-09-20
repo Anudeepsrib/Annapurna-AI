@@ -1,5 +1,9 @@
 # Milestone 6: Pantry and Shopping Experience
 
+> Historical implementation record. This milestone is complete; intermediate
+> test counts and next-step notes are preserved for traceability. See
+> [Phase Completion](PHASE_COMPLETION.md) for current status.
+
 ## Baseline
 
 - Backend tests: 63 passed.
@@ -47,6 +51,6 @@
   backend/API capability rather than a dense mobile UI.
 - Shopping checklist state is intentionally session-local.
 
-## Next milestone
+## Historical next step
 
 Milestone 7: `/today`, meal execution states, leftovers, and feedback.

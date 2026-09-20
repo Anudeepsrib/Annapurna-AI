@@ -25,6 +25,12 @@ See [docs/INGREDIENT_ONTOLOGY.md](docs/INGREDIENT_ONTOLOGY.md) for canonical
 ingredient identity and unit-conversion behavior.
 See [docs/LOCAL_FIRST_PRODUCT_REFRAME.md](docs/LOCAL_FIRST_PRODUCT_REFRAME.md)
 for the PM and privacy-by-design reframe.
+See [docs/PHASE_COMPLETION.md](docs/PHASE_COMPLETION.md) for the complete
+Phase 1–30 implementation map and edge-case coverage.
+See [docs/REPOSITORY_STRUCTURE.md](docs/REPOSITORY_STRUCTURE.md) for the source
+layout and dependency boundaries.
+For day-to-day use, start with the [User Guide](docs/USER_GUIDE.md). The full
+documentation index is in [docs/README.md](docs/README.md).
 
 ## Product Capabilities
 
@@ -50,6 +56,17 @@ for the PM and privacy-by-design reframe.
   structured pantry screen and explainable pantry-to-shopping deductions.
 - A Today workflow for cooked/skipped/leftover/ate-out outcomes, quick meal
   feedback, active leftovers, expiring pantry items, and missing ingredients.
+- Per-meal locking and deterministic single-slot replacement with immediate
+  grocery recalculation from current pantry stock.
+- Durable plan-generation idempotency, request correlation IDs, stable API
+  error codes, and bounded local-LLM retries with deterministic fallback.
+- Offline invariant evaluations for seven-day shape, hard dietary constraints,
+  allergy exclusions, and preference compilation.
+- A curated typed recipe catalog with quantified ingredients, pantry quantity
+  reconciliation, minimum-stock replenishment, manual list items, shopping
+  categories, and non-binding store-affinity hints.
+- Transparent feedback-aware ranking, full/day regeneration that preserves
+  locked meals, editable reusable leftovers, and validated household commands.
 - Local-vs-cloud model boundary: non-local LLM endpoints require
   `ENABLE_EXTERNAL_NETWORK=true`.
 
@@ -61,6 +78,17 @@ Screenshots are stored in [docs/screenshots](docs/screenshots).
 
 ![Pantry-first grocery optimization](docs/screenshots/grocery-optimization.png)
 
+## Documentation
+
+- [User Guide](docs/USER_GUIDE.md): household workflows, backups, privacy, and
+  troubleshooting.
+- [Local Setup](LOCAL_SETUP.md): installation, startup, verification, Docker,
+  and upgrades.
+- [Documentation Index](docs/README.md): architecture, domain references,
+  evaluations, and historical delivery records.
+- [Backend Guide](backend/README.md): API routes, request shape, and development
+  checks.
+
 ## Sample Plans
 
 See [docs/SAMPLE_MEAL_PLANS.md](docs/SAMPLE_MEAL_PLANS.md) and
@@ -70,14 +98,17 @@ See [docs/SAMPLE_MEAL_PLANS.md](docs/SAMPLE_MEAL_PLANS.md) and
 
 | Area | Version / Tooling |
 | --- | --- |
-| Frontend | Next.js 16.2.6, React 19.2.3, TypeScript, Tailwind CSS v4 |
+| Frontend | Next.js 16.3.5, React 19.2.3, TypeScript, Tailwind CSS v4 |
 | UI | Radix UI, lucide-react, TanStack Query |
 | Backend | FastAPI, SQLModel, SQLite, aiosqlite |
 | LLM | LiteLLM with local Ollama by default |
-| Quality | Ruff, Pytest, ESLint 9, npm audit |
+| Quality | Ruff, Pytest, offline planning evals, ESLint 9, dependency/secret audits |
 | Containers | Docker Compose with a backend service and optional Ollama profile |
 
 ## Quick Start
+
+Prerequisites: Python 3.11 or newer, Node.js 20 or newer, and Ollama. For an
+expanded first-time setup and verification flow, see [LOCAL_SETUP.md](LOCAL_SETUP.md).
 
 ### 1. Install Ollama
 
@@ -181,6 +212,10 @@ DATABASE_URL=sqlite+aiosqlite:///./annapurna.db
 LLM_PROVIDER=ollama
 LLM_BASE_URL=http://localhost:11434
 LLM_MODEL=llama3.2:latest
+LLM_TIMEOUT_SECONDS=30
+LLM_MAX_RETRIES=1
+LLM_CIRCUIT_BREAKER_FAILURES=3
+LLM_CIRCUIT_BREAKER_SECONDS=60
 ENABLE_EXTERNAL_NETWORK=false
 ENABLE_USDA=false
 ENABLE_PUBMED=false
@@ -242,6 +277,7 @@ cd backend
 pip install -r requirements.txt
 pip check
 pytest
+python -m evals.run_evals
 ruff check .
 alembic upgrade head
 alembic check

@@ -1,5 +1,9 @@
 # Milestone 1: Persistence and Generation Provenance
 
+> Historical implementation record. This milestone is complete; intermediate
+> test counts and next-step notes are preserved for traceability. See
+> [Phase Completion](PHASE_COMPLETION.md) for current status.
+
 ## Baseline
 
 Captured before implementation on 2026-09-19:
@@ -62,7 +66,7 @@ Captured before implementation on 2026-09-19:
   retains the legacy `mealplan` table to avoid destructive local-data loss.
 - Existing installations must run `alembic upgrade head` once before startup.
 
-## Next milestone
+## Historical next step
 
 Milestone 2 is the ingredient ontology plus deterministic ingredient and unit
 normalization. It should begin only after all Milestone 1 checks pass.

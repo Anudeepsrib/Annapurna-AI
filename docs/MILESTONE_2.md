@@ -1,5 +1,9 @@
 # Milestone 2: Ingredient and Unit Normalization
 
+> Historical implementation record. This milestone is complete; intermediate
+> test counts and next-step notes are preserved for traceability. See
+> [Phase Completion](PHASE_COMPLETION.md) for current status.
+
 ## Baseline
 
 - Backend tests: 17 passed.
@@ -51,7 +55,7 @@
   predictions.
 - Ingredient-specific density conversions are intentionally unsupported.
 
-## Next milestone
+## Historical next step
 
 Milestone 3: structured Pantry V2, backend free-text parsing, quantity-aware
 pantry reconciliation, and lightweight pantry transactions.

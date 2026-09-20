@@ -36,6 +36,20 @@ class MealPlan(SQLModel, table=True):
         return json.loads(self.generation_metadata_json)
 
 
+class GenerationRequestRecord(SQLModel, table=True):
+    __tablename__ = "generation_request"
+    __table_args__ = (
+        UniqueConstraint("user_id", "idempotency_key", name="uq_generation_request_user_key"),
+    )
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: str = Field(index=True)
+    idempotency_key: str
+    request_hash: str
+    response_json: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+
+
 class PantryItemRecord(SQLModel, table=True):
     __tablename__ = "pantry_item"
     __table_args__ = (UniqueConstraint("user_id", "identity_key", name="uq_pantry_item_user_identity"),)

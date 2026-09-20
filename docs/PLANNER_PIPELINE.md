@@ -1,48 +1,79 @@
 # Planner Pipeline
 
-The implemented weekly planning flow is:
+`PlanService` coordinates generation; deterministic domain components decide
+what is valid, how candidates rank, and how pantry stock changes the shopping
+list.
 
 ```text
-PlanRequest + current pantry
+PlanRequest + current pantry + saved feedback/locks
         |
         v
-ConstraintEngine
+Idempotency lookup -------- matching key/result -> replay
         |
         v
-CandidatePlanner (local LLM by default)
+ConstraintEngine -> typed hard constraints + soft preferences
         |
         v
-PlanValidator -- discard invalid candidates
+CandidatePlanner -> configured local LLM by default
         |
         v
-PlanScorer -- select the best valid candidate
+PlanValidator -> discard malformed or hard-rule-invalid candidates
         |
         v
-GroceryCompiler
+PlanScorer -> rank valid candidates with preferences, pantry, and feedback
         |
         v
-PlanRepository
+Preserve compatible locked slots
+        |
+        v
+GroceryCompiler -> recipe requirements - usable pantry + manual/minimum stock
+        |
+        v
+PlanRepository -> plan, provenance, compiled context, and idempotent result
 ```
 
-Safety guardrail requests and candidate-generation failures use the
-`FallbackPlanner`, then pass through the same deterministic validator before
-grocery compilation and persistence.
+Safety guardrail requests, unavailable/timed-out model calls, and zero valid
+candidates use `FallbackPlanner`. Its result passes through the same validation,
+grocery, provenance, and persistence boundaries. Fallback is a supported result,
+not an unvalidated escape path.
 
-## Responsibility boundaries
+## Responsibility Boundaries
 
-- `PlanService` coordinates the workflow and source-status handling.
-- `CandidatePlanner` calls the configured LLM and extracts candidate payloads.
+- `PlanService` coordinates the workflow, idempotency, saved context, source
+  status, and persistence.
+- `CandidatePlanner` calls the configured model and extracts one or more
+  candidate payloads.
 - `ConstraintEngine` compiles hard constraints and soft preferences.
-- `PlanValidator` enforces schema and hard constraints.
-- `PlanScorer` applies configurable ranking heuristics to valid candidates.
+- `PlanValidator` enforces the response schema and hard dietary constraints.
+- `PlanScorer` applies configurable pantry, expiry, preference, variety,
+  repetition, reuse, waste, and feedback heuristics. Scores remain internal.
 - `FallbackPlanner` builds the local deterministic seven-day plan.
-- `GroceryCompiler` merges canonical ingredients and reconciles usable pantry
-  stock without inventing recipe quantities.
-- `PlanRepository` persists versioned plan snapshots and provenance.
+- `GroceryCompiler`, in `app/domain/grocery`, merges canonical ingredients,
+  quantified recipe requirements, usable pantry stock, minimum-stock targets,
+  manual items, and use-soon requests.
+- `RecipeCatalog` loads and validates the versioned local recipe data.
+- `PlanRepository` persists plan snapshots, component versions, generation
+  provenance, and idempotency records.
 
-Model output never bypasses validation. A candidate may influence meal text,
-but it does not own allergies, prohibited ingredients, unit conversion, pantry
-identity, expiry, or grocery reconciliation.
+Model output never owns allergies, prohibited ingredients, unit conversion,
+pantry identity, expiry, locks, or grocery reconciliation. Unknown quantities
+remain explicit rather than being fabricated.
 
-The scorer is an internal ranking heuristic. Its numeric score is not returned
-to users and is not presented as a scientific nutrition measure.
+## Replacement and Day Refresh
+
+`MealReplacementService` handles targeted changes without running the whole
+generation pipeline. It rejects locked slots, chooses deterministic catalog
+alternatives, validates and scores the changed plan, recalculates groceries, and
+updates the latest snapshot. Day refresh applies the same process to unlocked
+slots only.
+
+## Versioning and Observability
+
+New generations persist the prompt, candidate planner, fallback planner,
+validator, and grocery compiler versions with provider/model labels, source
+status, timestamp, generation ID, and fallback flag. The API does not persist or
+return chain-of-thought.
+
+Requests receive an `X-Request-ID`; logs record route metadata and component
+labels but omit prompts, household profiles, pantry contents, secrets, and query
+strings. See [Architecture](../ARCHITECTURE.md) for the full runtime boundary.

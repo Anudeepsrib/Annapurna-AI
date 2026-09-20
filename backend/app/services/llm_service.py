@@ -1,3 +1,5 @@
+import asyncio
+import time
 from typing import Optional
 
 import litellm
@@ -16,6 +18,13 @@ class LLMService:
         self.base_url = settings.LLM_BASE_URL
         self.model = settings.LLM_MODEL
         self.api_key = settings.LLM_API_KEY
+        self.timeout_seconds = settings.LLM_TIMEOUT_SECONDS
+        self.max_retries = settings.LLM_MAX_RETRIES
+        self.failure_threshold = settings.LLM_CIRCUIT_BREAKER_FAILURES
+        self.breaker_seconds = settings.LLM_CIRCUIT_BREAKER_SECONDS
+        self._consecutive_failures = 0
+        self._circuit_open_until = 0.0
+        self.last_failure_code: str | None = None
 
         # Disable LiteLLM callbacks for privacy (local mode)
         litellm.success_callback = []
@@ -48,57 +57,67 @@ class LLMService:
         Defaults are local-first; a non-local custom endpoint can send prompt data
         outside the machine and is gated by configuration.
         """
-        try:
-            model_string = self._get_model_string()
-
-            kwargs = {
-                "model": model_string,
-                "messages": [
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt},
-                ],
-                "temperature": 0.7,
-                "api_base": self.base_url,
-                "api_key": self.api_key,
-                "timeout": 30,
-                "metadata": {"user_id": user_id or "local-user"},
-            }
-
-            if json_mode:
-                # Add strict instructions for smaller local-LLMs that struggle with formatting
-                kwargs["messages"].append(
-                    {
-                        "role": "system",
-                        "content": (
-                            "CRITICAL: Output only valid JSON. Do not include markdown fences, "
-                            "comments, or text before or after the JSON."
-                        ),
-                    }
-                )
-
-                # LitellM supports 'response_format' mapping, but some older/smaller providers reject it.
-                # We try applying it but if it fails, the system prompt acts as a fallback.
-                kwargs["response_format"] = {"type": "json_object"}
-
-                # For Ollama, native format passing is safer for older versions
-                if self.provider == "ollama":
-                    kwargs["format"] = "json"
-
-            logger.info("LLM call starting", provider=self.provider, model=self.model)
-
-            response = await litellm.acompletion(**kwargs)
-
-            content = response.choices[0].message.content
-
-            # Log usage locally only
-            usage = response.usage
-            logger.info("LLM call succeeded", model=model_string, usage=dict(usage or {}))
-
-            return content
-
-        except Exception as e:
-            logger.warning("LLM generation failed", error=str(e), provider=self.provider)
+        if time.monotonic() < self._circuit_open_until:
+            self.last_failure_code = "LLM_UNAVAILABLE"
+            logger.warning("LLM circuit open", provider=self.provider, model=self.model)
             return None
+
+        self.last_failure_code = None
+        model_string = self._get_model_string()
+        kwargs = {
+            "model": model_string,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+            ],
+            "temperature": 0.7,
+            "api_base": self.base_url,
+            "api_key": self.api_key,
+            "timeout": self.timeout_seconds,
+            "metadata": {"user_id": user_id or "local-user"},
+        }
+
+        if json_mode:
+            kwargs["messages"].append(
+                {
+                    "role": "system",
+                    "content": (
+                        "CRITICAL: Output only valid JSON. Do not include markdown fences, "
+                        "comments, or text before or after the JSON."
+                    ),
+                }
+            )
+
+            kwargs["response_format"] = {"type": "json_object"}
+
+            if self.provider == "ollama":
+                kwargs["format"] = "json"
+
+        for attempt in range(self.max_retries + 1):
+            try:
+                logger.info("LLM call starting", provider=self.provider, model=self.model, attempt=attempt + 1)
+                response = await litellm.acompletion(**kwargs)
+                self._consecutive_failures = 0
+                self._circuit_open_until = 0.0
+                self.last_failure_code = None
+                content = response.choices[0].message.content
+                logger.info("LLM call succeeded", model=model_string, usage=dict(response.usage or {}))
+                return content
+            except Exception as exc:
+                if attempt < self.max_retries:
+                    await asyncio.sleep(0.25 * (2**attempt))
+                    continue
+                self._consecutive_failures += 1
+                self.last_failure_code = "LLM_TIMEOUT" if isinstance(exc, TimeoutError) else "LLM_UNAVAILABLE"
+                if self._consecutive_failures >= self.failure_threshold:
+                    self._circuit_open_until = time.monotonic() + self.breaker_seconds
+                logger.warning(
+                    "LLM generation failed",
+                    error=exc.__class__.__name__,
+                    provider=self.provider,
+                    attempts=attempt + 1,
+                )
+                return None
 
     async def test_connection(self) -> dict:
         """

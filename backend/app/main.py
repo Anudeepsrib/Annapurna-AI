@@ -1,16 +1,27 @@
+import re
 import time
+from uuid import uuid4
 
 import structlog
 from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.api.routes import router as api_router
 from app.core.config import settings
-from app.core.exceptions import AppError, app_exception_handler, general_exception_handler
+from app.core.exceptions import (
+    AppError,
+    app_exception_handler,
+    general_exception_handler,
+    http_exception_handler,
+    validation_exception_handler,
+)
 
 # Configure structlog
 structlog.configure(
     processors=[
+        structlog.contextvars.merge_contextvars,
         structlog.processors.TimeStamper(fmt="iso"),
         structlog.processors.JSONRenderer(),
     ],
@@ -28,6 +39,8 @@ app = FastAPI(
 
 # Register Global Exception Handlers
 app.add_exception_handler(AppError, app_exception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
+app.add_exception_handler(StarletteHTTPException, http_exception_handler)
 app.add_exception_handler(Exception, general_exception_handler)
 
 # Configure CORS - restricted for local desktop safety
@@ -43,7 +56,12 @@ app.add_middleware(
 # Safety & Audit Middleware
 @app.middleware("http")
 async def safety_audit_logger(request: Request, call_next):
-    start_time = time.time()
+    start_time = time.perf_counter()
+    supplied_request_id = request.headers.get("X-Request-ID", "")
+    request_id = supplied_request_id if re.fullmatch(r"[A-Za-z0-9._-]{1,64}", supplied_request_id) else str(uuid4())
+    request.state.request_id = request_id
+    structlog.contextvars.clear_contextvars()
+    structlog.contextvars.bind_contextvars(request_id=request_id)
 
     # Log only route metadata by default. Dietary text and query strings can be sensitive.
     log = logger.bind(method=request.method, path=request.url.path)
@@ -53,7 +71,8 @@ async def safety_audit_logger(request: Request, call_next):
 
     try:
         response = await call_next(request)
-        process_time = time.time() - start_time
+        response.headers["X-Request-ID"] = request_id
+        process_time = time.perf_counter() - start_time
 
         if request.url.path not in {"/", "/health", f"{settings.API_V1_STR}/health"}:
             log.info(
@@ -65,9 +84,11 @@ async def safety_audit_logger(request: Request, call_next):
     except Exception as e:
         # Ensure middleware doesn't swallow errors before they reach exception handler
         # But log the failure time
-        process_time = time.time() - start_time
+        process_time = time.perf_counter() - start_time
         log.error("Request failed", duration=f"{process_time:.4f}s", error=e.__class__.__name__)
-        raise e
+        raise
+    finally:
+        structlog.contextvars.clear_contextvars()
 
 
 # Include Routes

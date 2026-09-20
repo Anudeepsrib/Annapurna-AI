@@ -42,7 +42,16 @@ stock are rejected.
 ## Grocery reconciliation
 
 Grocery refreshes use current pantry records, including transaction results.
-Expired and zero-quantity items are not treated as available. Recipe ingredients
-still lack structured quantities, so Pantry V2 reports available stock but does
-not fabricate exact subtraction; quantity-aware recipe requirements arrive in a
-later grocery compiler milestone.
+Expired and zero-quantity items are not treated as available. The grocery
+compiler subtracts pantry quantities when a curated recipe provides compatible
+structured requirements. It also merges manual shopping items and minimum-stock
+replenishment.
+
+When a recipe or pantry entry lacks a trustworthy quantity, or when units cannot
+be converted safely, the API preserves that uncertainty and asks the household
+to verify the amount. It never invents weight-to-volume, package, or density
+conversions.
+
+The browser Pantry screen currently supports import and review. Transaction
+events are available through `/api/v1/pantry/{item_id}/transactions`; dedicated
+browser controls remain a deliberate future enhancement.

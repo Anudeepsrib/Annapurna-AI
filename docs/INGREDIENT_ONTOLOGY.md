@@ -41,6 +41,10 @@ until an ingredient-specific density is available.
 ## Updating the seed
 
 Edit `backend/app/data/ingredients/ingredients_v1.json`, retain stable IDs, and
-run `pytest tests/test_ingredients.py`. Create a new versioned seed when a
+run `python -m pytest tests/test_ingredients.py`. Create a new versioned seed when a
 change would alter an existing ingredient's identity rather than adding an
 alias or correcting metadata.
+
+Run the command from `backend` with its virtual environment active. Changes to
+aliases or units should also exercise pantry and grocery reconciliation tests so
+canonical identity remains consistent across all three domains.

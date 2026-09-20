@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "recipes": [
+    {
+      "id": "vegetable_poha", "title": "Vegetable Poha", "cuisine": "Indian", "region": "South India",
+      "mealTypes": ["breakfast"],
+      "ingredients": [
+        {"ingredientId": "flattened_rice", "name": "poha", "quantity": 250, "unit": "g"},
+        {"ingredientId": "carrot", "name": "carrot", "quantity": 2, "unit": "piece"},
+        {"ingredientId": "green_pea", "name": "peas", "quantity": 150, "unit": "g"},
+        {"ingredientId": "curry_leaf", "name": "curry leaves", "quantity": 1, "unit": "bunch"}
+      ],
+      "instructions": ["Temper spices and curry leaves.", "Cook vegetables, then fold in soaked poha."],
+      "prepMinutes": 10, "cookMinutes": 15, "difficulty": "easy", "spiceLevel": "mild", "tags": ["quick"]
+    },
+    {
+      "id": "rava_idli", "title": "Rava Idli", "cuisine": "Indian", "region": "South India",
+      "mealTypes": ["breakfast"],
+      "ingredients": [
+        {"ingredientId": "semolina", "name": "rava", "quantity": 300, "unit": "g"},
+        {"ingredientId": "milk", "name": "dairy", "quantity": 250, "unit": "ml"},
+        {"ingredientId": "mustard_seed", "name": "mustard seeds", "quantity": 1, "unit": "tsp"},
+        {"ingredientId": "curry_leaf", "name": "curry leaves", "quantity": 1, "unit": "bunch"}
+      ],
+      "instructions": ["Mix the batter.", "Steam in idli moulds until set."],
+      "prepMinutes": 15, "cookMinutes": 15, "difficulty": "easy", "spiceLevel": "mild", "tags": ["steamed"]
+    },
+    {
+      "id": "moong_dal_chilla", "title": "Moong Dal Chilla", "cuisine": "Indian", "region": "Pan-Indian",
+      "mealTypes": ["breakfast"],
+      "ingredients": [
+        {"ingredientId": "split_green_gram", "name": "moong dal", "quantity": 300, "unit": "g"},
+        {"ingredientId": "ginger", "name": "ginger", "quantity": 20, "unit": "g"},
+        {"ingredientId": "coriander_leaf", "name": "coriander", "quantity": 1, "unit": "bunch"}
+      ],
+      "instructions": ["Blend soaked dal into batter.", "Cook thin chillas on a hot pan."],
+      "prepMinutes": 10, "cookMinutes": 20, "difficulty": "easy", "spiceLevel": "mild", "tags": ["protein"]
+    },
+    {
+      "id": "gongura_pappu_rice", "title": "Gongura Pappu Rice", "cuisine": "Telugu", "region": "Andhra",
+      "mealTypes": ["lunch"],
+      "ingredients": [
+        {"ingredientId": "gongura", "name": "gongura", "quantity": 1, "unit": "bunch"},
+        {"ingredientId": "pigeon_pea", "name": "toor dal", "quantity": 300, "unit": "g"},
+        {"ingredientId": "rice", "name": "rice", "quantity": 500, "unit": "g"}
+      ],
+      "instructions": ["Cook dal with gongura.", "Temper and serve with rice."],
+      "prepMinutes": 15, "cookMinutes": 35, "difficulty": "medium", "spiceLevel": "medium", "tags": ["pappu"]
+    },
+    {
+      "id": "beerakaya_pappu_rice", "title": "Beerakaya Pappu Rice", "cuisine": "Telugu", "region": "Andhra",
+      "mealTypes": ["lunch"],
+      "ingredients": [
+        {"ingredientId": "ridge_gourd", "name": "ridge gourd", "quantity": 2, "unit": "piece"},
+        {"ingredientId": "pigeon_pea", "name": "toor dal", "quantity": 300, "unit": "g"},
+        {"ingredientId": "rice", "name": "rice", "quantity": 500, "unit": "g"},
+        {"ingredientId": "tamarind", "name": "tamarind", "quantity": 20, "unit": "g"}
+      ],
+      "instructions": ["Cook ridge gourd and dal.", "Temper and serve with rice."],
+      "prepMinutes": 15, "cookMinutes": 35, "difficulty": "medium", "spiceLevel": "medium", "tags": ["pappu"]
+    },
+    {
+      "id": "chana_pulusu_rice", "title": "Chana Pulusu Rice", "cuisine": "Telugu", "region": "Andhra",
+      "mealTypes": ["lunch"],
+      "ingredients": [
+        {"ingredientId": "chickpea", "name": "chana", "quantity": 350, "unit": "g"},
+        {"ingredientId": "tamarind", "name": "tamarind", "quantity": 25, "unit": "g"},
+        {"ingredientId": "tomato", "name": "tomato", "quantity": 3, "unit": "piece"},
+        {"ingredientId": "rice", "name": "rice", "quantity": 500, "unit": "g"}
+      ],
+      "instructions": ["Simmer chickpeas in tamarind gravy.", "Serve with rice."],
+      "prepMinutes": 15, "cookMinutes": 35, "difficulty": "medium", "spiceLevel": "medium", "tags": ["pulusu"]
+    },
+    {
+      "id": "jowar_roti_vegetable_curry", "title": "Jowar Roti with Vegetable Curry", "cuisine": "Telugu", "region": "Deccan",
+      "mealTypes": ["dinner"],
+      "ingredients": [
+        {"ingredientId": "sorghum", "name": "jowar flour", "quantity": 400, "unit": "g"},
+        {"name": "mixed vegetables", "quantity": 500, "unit": "g"}
+      ],
+      "instructions": ["Cook the vegetable curry.", "Shape and cook jowar rotis."],
+      "prepMinutes": 20, "cookMinutes": 30, "difficulty": "medium", "spiceLevel": "medium", "tags": ["millet"]
+    },
+    {
+      "id": "moong_dal_dosa", "title": "Moong Dal Dosa", "cuisine": "Telugu", "region": "Andhra",
+      "mealTypes": ["dinner"],
+      "ingredients": [
+        {"ingredientId": "split_green_gram", "name": "moong dal", "quantity": 300, "unit": "g"},
+        {"ingredientId": "rice", "name": "rice", "quantity": 100, "unit": "g"},
+        {"ingredientId": "ginger", "name": "ginger", "quantity": 20, "unit": "g"},
+        {"ingredientId": "cumin_seed", "name": "cumin", "quantity": 1, "unit": "tsp"}
+      ],
+      "instructions": ["Blend soaked dal and rice.", "Cook dosas until crisp."],
+      "prepMinutes": 10, "cookMinutes": 25, "difficulty": "easy", "spiceLevel": "mild", "tags": ["quick"]
+    },
+    {
+      "id": "vegetable_semiya_upma", "title": "Vegetable Semiya Upma", "cuisine": "Telugu", "region": "South India",
+      "mealTypes": ["dinner"],
+      "ingredients": [
+        {"ingredientId": "vermicelli", "name": "vermicelli", "quantity": 300, "unit": "g"},
+        {"name": "mixed vegetables", "quantity": 350, "unit": "g"},
+        {"ingredientId": "curry_leaf", "name": "curry leaves", "quantity": 1, "unit": "bunch"}
+      ],
+      "instructions": ["Temper curry leaves.", "Cook vegetables and vermicelli together."],
+      "prepMinutes": 10, "cookMinutes": 20, "difficulty": "easy", "spiceLevel": "mild", "tags": ["quick"]
+    },
+    {
+      "id": "paneer_bhurji_roti", "title": "Paneer Bhurji with Roti", "cuisine": "Indian", "region": "Pan-Indian",
+      "mealTypes": ["dinner"],
+      "ingredients": [
+        {"ingredientId": "paneer", "name": "paneer", "quantity": 400, "unit": "g"},
+        {"ingredientId": "tomato", "name": "tomato", "quantity": 3, "unit": "piece"},
+        {"ingredientId": "whole_wheat_flour", "name": "whole wheat flour", "quantity": 400, "unit": "g"}
+      ],
+      "instructions": ["Cook crumbled paneer with tomato and spices.", "Serve with rotis."],
+      "prepMinutes": 10, "cookMinutes": 20, "difficulty": "easy", "spiceLevel": "mild", "tags": ["quick", "paneer"]
+    }
+  ]
+}

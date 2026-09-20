@@ -4,6 +4,9 @@ Annapurna-AI is a privacy-aware reference implementation for local meal planning
 By default, the app stores data in local SQLite and talks only to a local LLM
 endpoint such as Ollama on `localhost:11434`.
 
+For practical setup, backup, and daily-use instructions, see the
+[User Guide](docs/USER_GUIDE.md).
+
 ## Local by default
 
 - Meal plans are saved in a local SQLite database.
@@ -17,6 +20,11 @@ endpoint such as Ollama on `localhost:11434`.
   in the same local SQLite database.
 - Meal execution state, leftovers, and feedback signals stay in local SQLite
   and are not included in model prompts.
+- Request IDs, idempotency records, and offline evaluation fixtures stay local;
+  structured logs deliberately omit prompt, dietary, pantry, and query text.
+- The curated recipe catalog and household command parser are bundled locally.
+  Commands are converted to validated domain actions without an LLM or cloud
+  service, and feedback weights remain in local SQLite.
 - The default LLM provider is Ollama.
 - USDA and PubMed fetchers are disabled.
 - `ENABLE_EXTERNAL_NETWORK=false` blocks optional fetchers even if their feature
@@ -24,6 +32,8 @@ endpoint such as Ollama on `localhost:11434`.
 - `ENABLE_EXTERNAL_NETWORK=false` also blocks non-local LLM endpoints.
 - The frontend calls the backend through the local Next.js rewrite at
   `/api/python`.
+- The browser Settings screen exposes only safe configuration fields; it never
+  returns model or fetcher API keys.
 
 ## Optional external behavior
 
@@ -64,6 +74,10 @@ The application code does not include analytics, Sentry, PostHog, LangSmith, or
 other telemetry hooks. LiteLLM callbacks are disabled in the backend service.
 Dependency packages may contain optional integrations, so review new dependencies
 before adding them.
+
+Local-first does not mean “public-safe.” Treat `backend/annapurna.db`, `.env`
+files, exported lists, and logs as private household data. Stop the backend
+before copying the SQLite file for backup.
 
 ## Wellness boundary
 

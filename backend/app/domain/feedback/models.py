@@ -41,6 +41,12 @@ class FeedbackRequest(BaseModel):
     signal: FeedbackSignal
 
 
+class LeftoverUpdateRequest(BaseModel):
+    servingsRemaining: int | None = Field(default=None, ge=0, le=24)
+    usableUntil: datetime | None = None
+    consumed: bool | None = None
+
+
 class MealActivityView(BaseModel):
     mealType: MealType
     meal: PlanMeal

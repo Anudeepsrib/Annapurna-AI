@@ -1,5 +1,9 @@
 # Milestone 7: Today, Execution, Leftovers, and Feedback
 
+> Historical implementation record. This milestone is complete; intermediate
+> test counts and next-step notes are preserved for traceability. See
+> [Phase Completion](PHASE_COMPLETION.md) for current status.
+
 ## Baseline
 
 - Backend tests: 63 passed.
@@ -56,7 +60,7 @@
 - Meal status does not automatically subtract pantry quantities because recipe
   amounts remain unstructured.
 
-## Next milestone
+## Historical next step
 
 Milestone 8 would add partial meal replacement, locked meals, and grocery
 recalculation. It was not started in this run.

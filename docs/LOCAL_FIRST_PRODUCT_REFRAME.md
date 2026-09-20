@@ -38,9 +38,10 @@ The backend classifies generated grocery items into:
 - `Buy / Replenish`: ingredients used by the plan that are not in the pantry.
 - `Pantry Items To Use Soon`: pantry items expiring soon but not used by the plan.
 
-The optimizer preserves recipe units instead of inventing exact purchase
-quantities. It explains repeat usage and priority so the grocery list is useful
-without pretending to know household consumption precisely.
+The optimizer subtracts compatible pantry quantities when the curated recipe
+catalog provides structured requirements. It preserves unresolved recipe or
+pantry units instead of inventing conversions, and explains repeat usage,
+minimum-stock replenishment, use-soon priority, and every pantry deduction.
 
 ## Telugu and Andhra dietary constraints
 

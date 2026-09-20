@@ -154,6 +154,7 @@ function GroceryRow({ item, checked, onToggle }: { item: Ingredient; checked: bo
                 </div>
                 <p className="mt-1 text-sm text-muted-foreground">{item.quantity}</p>
                 {item.optimization_note ? <p className="mt-1 text-xs text-muted-foreground">Why: {item.optimization_note}</p> : null}
+                {item.storeAffinity ? <p className="mt-1 text-xs text-muted-foreground">Suggested store: {item.storeAffinity.replaceAll("_", " ")}</p> : null}
                 {item.meals.length ? <p className="mt-1 text-xs italic text-muted-foreground">Used in: {item.meals.join(", ")}</p> : null}
             </div>
         </div>

@@ -19,6 +19,7 @@ class PlanScorer:
         plan: list[dict[str, Any]],
         preferences: PlanningPreferences,
         pantry: list[PantryItem],
+        feedback_weights: dict[str, float] | None = None,
     ) -> PlanScore:
         meal_texts, titles, ingredients = _plan_parts(plan)
         ingredient_counts = Counter(_identity(item) for item in ingredients)
@@ -34,6 +35,7 @@ class PlanScorer:
         pantry_utilization = _ratio(len(planned & pantry_keys), len(planned))
         expiring_utilization = _ratio(len(planned & expiring), len(expiring), empty=1.0)
         preference_match = _preference_match(plan, meal_texts, preferences)
+        feedback_match = _feedback_match(titles, feedback_weights or {})
         variety = _ratio(len(set(titles)), len(titles))
         reused = sum(1 for count in ingredient_counts.values() if count > 1)
         ingredient_reuse = _ratio(reused, len(ingredient_counts))
@@ -45,6 +47,7 @@ class PlanScorer:
             "pantryUtilization": pantry_utilization,
             "expiringItemUtilization": expiring_utilization,
             "preferenceMatch": preference_match,
+            "feedbackMatch": feedback_match,
             "variety": variety,
             "ingredientReuse": ingredient_reuse,
             "missingIngredientPenalty": missing_penalty,
@@ -57,6 +60,7 @@ class PlanScorer:
             * pantry_utilization
             + self.weights.expiringItemUtilization * expiring_utilization
             + self.weights.preferenceMatch * preference_match
+            + self.weights.feedbackMatch * feedback_match
             + self.weights.variety * variety
             + self.weights.ingredientReuse
             * _preference_weight(preferences.ingredientReusePreference)
@@ -76,10 +80,14 @@ class PlanScorer:
         candidates: list[list[dict[str, Any]]],
         preferences: PlanningPreferences,
         pantry: list[PantryItem],
+        feedback_weights: dict[str, float] | None = None,
     ) -> list[dict[str, Any]]:
         if not candidates:
             raise ValueError("At least one valid plan candidate is required")
-        return max(candidates, key=lambda candidate: self.score(candidate, preferences, pantry).total)
+        return max(
+            candidates,
+            key=lambda candidate: self.score(candidate, preferences, pantry, feedback_weights).total,
+        )
 
 
 def _plan_parts(plan: list[dict[str, Any]]) -> tuple[list[str], list[str], list[str]]:
@@ -128,6 +136,12 @@ def _preference_match(
 def _identity(value: str) -> str:
     match = ingredient_normalizer.normalize(value)
     return match.ingredient.id if match.ingredient else match.normalized_query
+
+
+def _feedback_match(titles: list[str], feedback_weights: dict[str, float]) -> float:
+    if not feedback_weights:
+        return 0.0
+    return max(-1.0, min(1.0, sum(feedback_weights.get(title, 0.0) for title in titles) / len(feedback_weights)))
 
 
 def _usable(item: PantryItem) -> bool:

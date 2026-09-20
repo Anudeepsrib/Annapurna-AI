@@ -1,5 +1,9 @@
 # Milestone 4: Constraints, Preferences, Validation, and Scoring
 
+> Historical implementation record. This milestone is complete; intermediate
+> test counts and next-step notes are preserved for traceability. See
+> [Phase Completion](PHASE_COMPLETION.md) for current status.
+
 ## Baseline
 
 - Backend tests: 51 passed.
@@ -54,7 +58,7 @@
   ranking until recipes and meal execution expose those facts.
 - Scoring weights are product heuristics, not scientifically validated values.
 
-## Next milestone
+## Historical next step
 
 Milestone 5: extract candidate planning, deterministic fallback, and grocery
 compilation so `PlanService` only coordinates the workflow.
