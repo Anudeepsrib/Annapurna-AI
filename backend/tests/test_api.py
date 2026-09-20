@@ -60,14 +60,19 @@ def test_optional_fetchers_do_not_call_network_by_default():
     asyncio.run(run_checks())
 
 
-def test_generate_plan_returns_clear_error_when_llm_unavailable(client: TestClient):
+def test_generate_plan_uses_fallback_when_llm_unavailable(client: TestClient):
     payload = {"householdSize": "2", "spiceLevel": "medium", "dietary": "vegetarian"}
 
     with patch("app.services.plan_service.llm_service.generate_response", return_value=None):
         response = client.post("/api/v1/generate-plan", json=payload)
 
-    assert response.status_code == 503
-    assert response.json()["error"]["code"] == "LLMUnavailableError"
+    assert response.status_code == 200
+    data = response.json()
+    assert data["source_status"] == "fallback_llm_unavailable"
+    assert len(data["plan"]) == 7
+    assert data["generation_metadata"]["fallback_used"] is True
+    assert data["generation_metadata"]["prompt_version"] == "planner_v1"
+    assert client.get("/api/v1/plan").json() == data["plan"]
 
 
 def test_malformed_llm_json_falls_back_to_valid_plan(client: TestClient):

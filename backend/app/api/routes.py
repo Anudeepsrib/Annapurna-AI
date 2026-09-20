@@ -5,6 +5,8 @@ from app.api.settings import router as settings_router
 from app.core.config import settings
 from app.core.database import get_session
 from app.core.safety import WELLNESS_DISCLAIMER
+from app.domain.feedback import FeedbackRequest, MealStatusRequest, MealType, TodayService
+from app.domain.pantry import PantryImportRequest, PantryService, PantryTransactionRequest
 from app.models.schemas import EvidenceResponse, PlanRequest
 from app.services.evidence_service import evidence_service
 from app.services.orchestrator import orchestrator
@@ -77,6 +79,7 @@ async def generate_plan(
         "disclaimer": result.get("disclaimer", WELLNESS_DISCLAIMER),
         "safety_notes": result.get("safety_notes", []),
         "grocery_optimization": result.get("grocery_optimization", []),
+        "generation_metadata": result["generation_metadata"],
     }
 
 
@@ -108,4 +111,67 @@ async def get_grocery_list(
     service = PlanService(session)
     grocery_list = await service.generate_grocery_list(user_id)
     return grocery_list
+
+
+@router.get("/today")
+async def get_today(session: AsyncSession = Depends(get_session)):
+    return await TodayService(session).get_today("local-user")
+
+
+@router.post("/today/{day}/{meal_type}/status")
+async def set_meal_status(
+    day: str,
+    meal_type: MealType,
+    request: MealStatusRequest,
+    session: AsyncSession = Depends(get_session),
+):
+    status_value = await TodayService(session).set_status("local-user", day, meal_type, request)
+    return {"status": status_value}
+
+
+@router.post("/today/{day}/{meal_type}/feedback")
+async def record_meal_feedback(
+    day: str,
+    meal_type: MealType,
+    request: FeedbackRequest,
+    session: AsyncSession = Depends(get_session),
+):
+    signal = await TodayService(session).record_feedback("local-user", day, meal_type, request)
+    return {"signal": signal}
+
+
+@router.get("/leftovers")
+async def get_leftovers(session: AsyncSession = Depends(get_session)):
+    return await TodayService(session).list_leftovers("local-user")
+
+
+@router.get("/pantry")
+async def get_pantry(session: AsyncSession = Depends(get_session)):
+    return await PantryService(session).list_items("local-user")
+
+
+@router.post("/pantry/import")
+async def import_pantry(
+    request: PantryImportRequest,
+    session: AsyncSession = Depends(get_session),
+):
+    return await PantryService(session).import_text("local-user", request.pantryText)
+
+
+@router.post("/pantry/{item_id}/transactions")
+async def record_pantry_transaction(
+    item_id: int,
+    request: PantryTransactionRequest,
+    session: AsyncSession = Depends(get_session),
+):
+    item, transaction = await PantryService(session).record_transaction("local-user", item_id, request)
+    return {"item": item, "transaction": transaction}
+
+
+@router.get("/pantry/{item_id}/transactions")
+async def get_pantry_transactions(
+    item_id: int,
+    session: AsyncSession = Depends(get_session),
+):
+    return await PantryService(session).list_transactions("local-user", item_id)
 

@@ -1,0 +1,1 @@
+"""Deterministic household food domains."""

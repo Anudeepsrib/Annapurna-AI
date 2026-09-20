@@ -2,6 +2,14 @@ import Link from "next/link"
 import Image from "next/image"
 import { Settings } from "lucide-react"
 
+const primaryLinks = [
+    ["Today", "/today"],
+    ["Week", "/plan"],
+    ["Pantry", "/pantry"],
+    ["Shop", "/list"],
+    ["Family", "/profile"],
+] as const
+
 export function Header() {
     return (
         <header className="sticky top-0 z-50 w-full border-b border-primary/10 bg-background/80 backdrop-blur-md shadow-sm">
@@ -24,14 +32,17 @@ export function Header() {
                         </span>
                     </Link>
                 </div>
-                <nav className="flex items-center gap-6">
-                    <Link href="/about" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
-                        About
-                    </Link>
+                <nav aria-label="Primary navigation" className="flex items-center gap-3 overflow-x-auto md:gap-5">
+                    {primaryLinks.map(([label, href]) => (
+                        <Link key={href} href={href} className="whitespace-nowrap text-sm font-medium text-foreground/80 transition-colors hover:text-primary">
+                            {label}
+                        </Link>
+                    ))}
                     <Link href="/settings" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
+                        <span className="sr-only">Settings</span>
                         <Settings className="h-5 w-5" />
                     </Link>
-                    <span className="text-xs bg-primary/5 border border-primary/10 px-2 py-1 rounded-md text-primary/80 font-medium tracking-wide shadow-sm">
+                    <span className="hidden rounded-md border border-primary/10 bg-primary/5 px-2 py-1 text-xs font-medium tracking-wide text-primary/80 shadow-sm sm:inline">
                         Local Mode
                     </span>
                 </nav>

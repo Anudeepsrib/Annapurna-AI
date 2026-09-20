@@ -38,6 +38,11 @@ class NotFoundError(AppError):
         super().__init__(f"{resource} not found", status_code=status.HTTP_404_NOT_FOUND)
 
 
+class PantryConflictError(AppError):
+    def __init__(self, message: str):
+        super().__init__(message, status_code=status.HTTP_409_CONFLICT)
+
+
 async def app_exception_handler(request: Request, exc: AppError):
     """
     Global handler for AppError and its subclasses.

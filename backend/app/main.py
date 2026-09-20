@@ -1,4 +1,3 @@
-import contextlib
 import time
 
 import structlog
@@ -7,7 +6,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import router as api_router
 from app.core.config import settings
-from app.core.database import create_db_and_tables
 from app.core.exceptions import AppError, app_exception_handler, general_exception_handler
 
 # Configure structlog
@@ -22,20 +20,10 @@ structlog.configure(
 
 logger = structlog.get_logger()
 
-
-@contextlib.asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Startup: Create tables (Async)
-    await create_db_and_tables()
-    yield
-    # Shutdown
-
-
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
     debug=settings.DEBUG,
-    lifespan=lifespan,
 )
 
 # Register Global Exception Handlers

@@ -78,6 +78,9 @@ if [ ! -f ".env" ]; then
     echo -e "${GREEN}✅ Created backend/.env with defaults${NC}"
 fi
 
+echo "Applying database migrations..."
+alembic upgrade head
+
 cd ..
 
 # Setup frontend

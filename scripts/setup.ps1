@@ -86,6 +86,9 @@ if (-not (Test-Path ".env")) {
     Write-Host "✅ Created backend/.env with defaults" -ForegroundColor Green
 }
 
+Write-Host "Applying database migrations..."
+alembic upgrade head
+
 Set-Location ..
 
 # Setup frontend

@@ -7,8 +7,16 @@ endpoint such as Ollama on `localhost:11434`.
 ## Local by default
 
 - Meal plans are saved in a local SQLite database.
+- Alembic migrations update that local database in place; the initial migration
+  preserves existing meal plans while adding nullable generation provenance.
 - Family profile labels, pantry inventory, Telugu/Andhra constraints, and
   grocery optimization context are saved locally with the generated plan.
+- The ingredient ontology is bundled JSON, and name/unit normalization runs
+  deterministically without a network call or embedding service.
+- Structured pantry items and their purchase/consume/adjust/expiry events stay
+  in the same local SQLite database.
+- Meal execution state, leftovers, and feedback signals stay in local SQLite
+  and are not included in model prompts.
 - The default LLM provider is Ollama.
 - USDA and PubMed fetchers are disabled.
 - `ENABLE_EXTERNAL_NETWORK=false` blocks optional fetchers even if their feature

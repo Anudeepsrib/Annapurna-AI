@@ -21,6 +21,8 @@ plans.
 - No analytics, telemetry, Sentry, PostHog, or LangSmith hooks are included.
 
 See [LOCAL_FIRST.md](LOCAL_FIRST.md) for the full privacy posture.
+See [docs/INGREDIENT_ONTOLOGY.md](docs/INGREDIENT_ONTOLOGY.md) for canonical
+ingredient identity and unit-conversion behavior.
 See [docs/LOCAL_FIRST_PRODUCT_REFRAME.md](docs/LOCAL_FIRST_PRODUCT_REFRAME.md)
 for the PM and privacy-by-design reframe.
 
@@ -36,6 +38,18 @@ for the PM and privacy-by-design reframe.
   onion/garlic planning.
 - Rule-based validation tests that reject malformed model output and cultural
   constraint violations before saving.
+- A local ontology of Telugu/South Indian staples with deterministic alias,
+  regional-name, quantity, and unit normalization.
+- Structured pantry inventory with server-side free-text import, expiry and
+  storage metadata, quantity transactions, and stale-update protection.
+- Deterministic hard-constraint compilation and validation, with typed soft
+  preferences and internal heuristic plan ranking.
+- A modular planning pipeline with LLM candidate generation, deterministic
+  fallback, validation/ranking, and extracted grocery compilation.
+- Household navigation for Week, Pantry, Shop, and Family, including a
+  structured pantry screen and explainable pantry-to-shopping deductions.
+- A Today workflow for cooked/skipped/leftover/ate-out outcomes, quick meal
+  feedback, active leftovers, expiring pantry items, and missing ingredients.
 - Local-vs-cloud model boundary: non-local LLM endpoints require
   `ENABLE_EXTERNAL_NETWORK=true`.
 
@@ -91,6 +105,7 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 cp ../env.example .env
+alembic upgrade head
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
@@ -102,6 +117,7 @@ python -m venv venv
 .\venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 Copy-Item ..\env.example .env
+alembic upgrade head
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
@@ -143,6 +159,8 @@ Optional Ollama container profile:
 ```bash
 docker compose --profile ollama up --build
 ```
+
+The backend container applies pending Alembic migrations before starting the API.
 
 If you use the Ollama profile, pull a model into that container before
 generating plans:
@@ -225,6 +243,8 @@ pip install -r requirements.txt
 pip check
 pytest
 ruff check .
+alembic upgrade head
+alembic check
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 

@@ -1,6 +1,9 @@
+from datetime import datetime
 from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
+
+from app.domain.planning.models import PlanningPreferences
 
 # --- C. Curated Evidence Models ---
 
@@ -91,8 +94,15 @@ class PantryItem(BaseModel):
     quantity: str = Field(default="", max_length=40)
     category: Literal["grains", "dals", "vegetables", "spices", "dairy", "other"] = "other"
     expiresWithinDays: int | None = Field(default=None, ge=0, le=365)
+    storageLocation: Literal["pantry", "refrigerator", "freezer"] | None = None
+    opened: bool = False
+    expiresAt: datetime | None = None
+    expired: bool = False
+    minimumStockQuantity: str = Field(default="", max_length=40)
+    preferredBrand: str = Field(default="", max_length=80)
+    notes: str = Field(default="", max_length=500)
 
-    @field_validator("name", "quantity")
+    @field_validator("name", "quantity", "minimumStockQuantity", "preferredBrand", "notes")
     @classmethod
     def clean_text(cls, value: str) -> str:
         return " ".join(value.split())
@@ -105,6 +115,8 @@ class PlanRequest(BaseModel):
     allergies: list[str] = Field(default_factory=list, max_length=20)
     familyProfiles: list[FamilyProfile] = Field(default_factory=list, max_length=12)
     pantryInventory: list[PantryItem] = Field(default_factory=list, max_length=80)
+    pantryText: str | None = Field(default=None, max_length=5000)
+    preferences: PlanningPreferences | None = None
     teluguAndhraConstraints: list[TeluguAndhraConstraint] = Field(
         default_factory=lambda: [
             "vegetarian",
@@ -212,6 +224,18 @@ class DayPlan(BaseModel):
         "General wellness only. Nutrition estimates are approximate and not medical advice."
     )
     safety_notes: list[str] = Field(default_factory=list)
+
+
+class GenerationMetadata(BaseModel):
+    generation_id: str
+    generated_at: datetime
+    provider: str
+    model: str
+    prompt_version: str
+    planner_version: str
+    validator_version: str
+    source_status: str
+    fallback_used: bool
 
 # --- API Response Models ---
 

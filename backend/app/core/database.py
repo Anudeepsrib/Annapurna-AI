@@ -4,7 +4,6 @@ from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
-from sqlmodel import SQLModel
 
 from app.core.config import settings
 
@@ -35,15 +34,6 @@ else:
 
 # Create Async Engine
 engine = create_async_engine(DATABASE_URL, **engine_kwargs)
-
-
-async def create_db_and_tables():
-    """
-    Create tables if they don't exist.
-    """
-    async with engine.begin() as conn:
-        await conn.run_sync(SQLModel.metadata.create_all)
-
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
     """

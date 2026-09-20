@@ -55,7 +55,23 @@ export interface PlanPreferences {
   allergies?: string[];
   familyProfiles?: FamilyProfile[];
   pantryInventory?: PantryItem[];
+  pantryText?: string;
+  preferences?: SoftPlanningPreferences;
   teluguAndhraConstraints?: TeluguAndhraConstraint[];
+}
+
+export interface SoftPlanningPreferences {
+  preferredCuisines?: string[];
+  spiceLevel?: "mild" | "medium" | "spicy";
+  riceLunchPreference?: boolean;
+  dalMealsPerWeek?: number;
+  fermentedBreakfasts?: "avoid" | "okay" | "prefer";
+  preparationEffort?: "low" | "medium" | "any";
+  weekdayCookingMinutes?: number;
+  leftoversPreference?: "avoid" | "neutral" | "prefer";
+  repetitionTolerance?: "low" | "medium" | "high";
+  pantryUtilizationPreference?: "low" | "medium" | "high";
+  ingredientReusePreference?: "low" | "medium" | "high";
 }
 
 export type TeluguAndhraConstraint =
@@ -81,6 +97,61 @@ export interface PantryItem {
   quantity?: string;
   category?: "grains" | "dals" | "vegetables" | "spices" | "dairy" | "other";
   expiresWithinDays?: number | null;
+}
+
+export type PantryUnit =
+  | "g" | "kg" | "oz" | "lb"
+  | "ml" | "l" | "tsp" | "tbsp" | "cup"
+  | "piece" | "bunch" | "packet" | "can" | "bottle";
+
+export interface PantryInventoryItem {
+  id: number;
+  ingredientId: string | null;
+  displayName: string;
+  quantity: string | null;
+  unit: PantryUnit | null;
+  quantityText: string;
+  category: string;
+  storageLocation: "pantry" | "refrigerator" | "freezer";
+  opened: boolean;
+  expiresAt: string | null;
+  expired: boolean;
+  minimumStockQuantity: string | null;
+  minimumStockUnit: PantryUnit | null;
+  preferredBrand: string;
+  notes: string;
+  version: number;
+}
+
+export type MealStatus = "COOKED" | "SKIPPED" | "LEFTOVER" | "ATE_OUT" | "REPLACED";
+export type FeedbackSignal =
+  | "LIKED" | "DISLIKED" | "TOO_SPICY" | "TOO_MUCH_WORK" | "WOULD_REPEAT" | "WOULD_NOT_REPEAT";
+
+export interface TodayMeal {
+  mealType: "breakfast" | "lunch" | "dinner";
+  meal: Meal;
+  status: MealStatus | null;
+  feedback: FeedbackSignal[];
+  missingIngredients: string[];
+}
+
+export interface Leftover {
+  id: number;
+  title: string;
+  sourceDay: string;
+  sourceMealType: "breakfast" | "lunch" | "dinner";
+  servingsRemaining: number;
+  createdAt: string;
+  usableUntil: string;
+}
+
+export interface TodayResponse {
+  planAvailable: boolean;
+  day: string;
+  date: string;
+  meals: TodayMeal[];
+  expiringPantry: PantryInventoryItem[];
+  leftovers: Leftover[];
 }
 
 export interface GeneratePlanResponse {
@@ -187,6 +258,36 @@ export const ApiClient = {
     }),
 
   getGroceryList: async (): Promise<GroceryCategory[]> => request<GroceryCategory[]>("/grocery-list"),
+
+  getPantry: async (): Promise<PantryInventoryItem[]> => request<PantryInventoryItem[]>("/pantry"),
+
+  importPantry: async (pantryText: string): Promise<PantryInventoryItem[]> =>
+    request<PantryInventoryItem[]>("/pantry/import", {
+      method: "POST",
+      body: JSON.stringify({ pantryText }),
+    }),
+
+  getToday: async (): Promise<TodayResponse> => request<TodayResponse>("/today"),
+
+  setMealStatus: async (
+    day: string,
+    mealType: TodayMeal["mealType"],
+    status: MealStatus,
+  ): Promise<{ status: MealStatus }> =>
+    request<{ status: MealStatus }>(`/today/${encodeURIComponent(day)}/${mealType}/status`, {
+      method: "POST",
+      body: JSON.stringify({ status }),
+    }),
+
+  recordMealFeedback: async (
+    day: string,
+    mealType: TodayMeal["mealType"],
+    signal: FeedbackSignal,
+  ): Promise<{ signal: FeedbackSignal }> =>
+    request<{ signal: FeedbackSignal }>(`/today/${encodeURIComponent(day)}/${mealType}/feedback`, {
+      method: "POST",
+      body: JSON.stringify({ signal }),
+    }),
 
   getEvidence: async (topic: string): Promise<EvidenceResponse> =>
     request<EvidenceResponse>(`/evidence/${encodeURIComponent(topic)}`),
